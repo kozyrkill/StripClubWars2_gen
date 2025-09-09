@@ -123,18 +123,18 @@ HAIR_LENGTH_PROMPTS = {
 }
 
 POSE_PROMPTS = {
-    "head": "close-up portrait, headshot, face centered, looking at viewer, studio lighting, beauty lighting, soft light, smooth skin, detailed eyes, catchlight in eyes, symmetrical face",
+    "head": "close-up portrait, headshot, face centered, looking at viewer, studio lighting, beauty lighting, soft light, smooth skin, detailed eyes, catchlight in eyes, symmetrical face, both eyes visible, face in frame, no obstruction",
     "cas": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
     "bc": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure", 
     "biz": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
     "fun": "full body, full body shot, head to toe, legs visible, feet visible, active pose, complete figure",
     "uw": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
     "ss": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "tl": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "tl": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure, topless, bare chest, exposed breasts, no shirt, no top",
     "nude": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure, nude, naked, no clothes, without clothing, no outfit, no lingerie, no bra, no panties",
-    "s1": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "s2": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure", 
-    "s3": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "s1": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure, sexy, seductive",
+    "s2": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure, sexy, seductive", 
+    "s3": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure, sexy, seductive",
     "preg": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure"
 }
 
@@ -195,9 +195,9 @@ class SCWImageGenerator:
         self.output_dir = Path(output_dir)
         self.modkey = modkey
         
-        # Create a new session directory based on timestamp
+        # Create a new session directory based on timestamp and prefix with modkey
         session_timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.session_dir = self.output_dir / f"session_{session_timestamp}"
+        self.session_dir = self.output_dir / f"{self.modkey}_{session_timestamp}"
         self.session_dir.mkdir(parents=True, exist_ok=True)
         
         print(f"📁 Session: {self.session_dir.name}")
@@ -351,7 +351,27 @@ class SCWImageGenerator:
                 0: "athletic shoes, sports socks",
                 1: "running shoes, ankle socks",
                 2: "gym shoes, athletic wear",
-            }
+            },
+            "tl": {
+                6: "high heels",
+                7: "stiletto heels",
+                8: "platform heels",
+            },
+            "s1": {
+                1: "high heels",
+                2: "stiletto heels",
+                3: "platform heels",
+            },
+            "s2": {
+                3: "platform heels",
+                4: "stiletto heels",
+                5: "platform heels, ankle strap",
+            },
+            "s3": {
+                5: "platform heels",
+                6: "stiletto heels",
+                7: "platform heels, ankle strap",
+            },
         }
         
         pose_footwear = footwear_variants.get(pose, {})
@@ -372,11 +392,11 @@ class SCWImageGenerator:
         return footwear
 
     def get_clothing_description(self, pose: str, reveal_level: int) -> str:
-        """Returns full clothing description including footwear for a pose and reveal level"""
+        """Return full clothing description including footwear for pose and reveal level"""
         
-        # Hard mode for nude: no clothing, bare feet
+        # Strict nude: absolutely no clothing, bare feet, hairless pubic area
         if pose == "nude":
-            return "no clothing, fully nude, bare skin, no outfit, no lingerie, bare feet"
+            return "no clothing, fully nude, bare skin, no outfit, no lingerie, hairless pubic area, bare feet"
         
         # Detailed clothing variants for different poses and reveal levels
         clothing_variants = {
@@ -405,6 +425,26 @@ class SCWImageGenerator:
                 3: "colorful bikini top and bottom, classic two-piece beachwear",
                 4: "tiny string bikini, minimal coverage, revealing swimwear",
             },
+            "tl": {
+                6: "topless, panties only (thong or g-string), no top, exposed breasts",
+                7: "topless, micro skirt or shorts with exposed breasts, no bra",
+                8: "topless, sheer lace panties or mesh bottoms, exposed breasts, no bra",
+            },
+            "s1": {
+                1: "sparkly sequined mini dress, fishnet stockings, sheer mesh panels",
+                2: "tight mini dress with deep neckline, thigh-high stockings, garter belt, semi-transparent",
+                3: "corset top with short skirt, fishnets, feather boa, rhinestones, see-through details",
+            },
+            "s2": {
+                3: "black corset and g-string, garter belt, fishnet stockings, gloves, sheer mesh",
+                4: "latex mini dress, thigh-high stockings, platform heels, choker, semi-transparent sections",
+                5: "pasties and g-string, garter belt, fishnets, feather boa, glitter, see-through elements",
+            },
+            "s3": {
+                5: "micro bikini top and thong, fishnets, garter belt, high heels, glitter, transparent mesh",
+                6: "strappy lingerie harness, g-string, thigh-highs, platform heels, rhinestones, see-through",
+                7: "nipple pasties, g-string, body glitter, feather boa, high heels, semi-transparent mesh",
+            },
         }
         
         # Get clothing description
@@ -431,59 +471,118 @@ class SCWImageGenerator:
         full_description = f"{clothing_desc}, {footwear_desc}"
         return full_description
     
-    def build_pose_prompt(self, base_prompt: str, pose: str, reveal_level: int = 0) -> str:
-        """Creates a prompt for a specific pose with detailed clothing description"""
+    def build_pose_prompt(self, base_prompt: str, pose: str, reveal_level: int = 0, variant_idx: int = 0) -> str:
+        """Create pose-specific prompt with clothing description and full-body emphasis.
+        variant_idx allows diversifying poses/expressions/camera angles across variants.
+        """
         pose_base = POSE_PROMPTS.get(pose, "")
         clothing_desc = self.get_clothing_description(pose, reveal_level)
-        
-        # CRITICALLY IMPORTANT: full body prompt at the very beginning for maximum priority
-        if pose != "head":
-            priority_full_body = ("full body, complete figure, head to toe, legs visible, feet visible, "
-                                 "whole person visible, entire body in frame")
-        else:
-            priority_full_body = ""
-        
-        # Base quality settings
+
+        # Pose diversification descriptors
+        variant_descriptors_by_pose = {
+            "nude": [
+                "natural stance, relaxed arms, subtle smile, legs apart, shoulder-width stance, clear pelvis visibility, detailed anatomy, erotic pose",
+                "arms on hips, confident posture, looking at viewer, front view pelvis visible, legs apart, provocative pose",
+                "one hand behind head, playful smile, slight hip tilt, pelvis unobstructed, no pubic hair, legs apart, seductive pose",
+                "3/4 view, looking over shoulder, soft smile, smooth skin, hairless pubic area, wide stance, sensual pose",
+                "contrapposto pose, one leg forward, elegant posture, detailed pelvis region, open-legged stance, arched back",
+                "hands gently at sides, neutral expression, relaxed, anatomically correct details, legs apart, hips forward",
+            ],
+            "tl": [
+                "arms crossed under chest, subtle smile, topless emphasized, exposed breasts",
+                "one arm behind head, other on hip, playful, bare chest visible, exposed breasts",
+                "hands on hips, confident, looking at viewer, no top, no bra, exposed breasts",
+            ],
+            "cas": [
+                "standing straight, hands at sides",
+                "one leg forward, casual stance",
+                "hands in pockets, relaxed",
+            ],
+            "s1": [
+                "sexy pose, hip tilt, playful smile, semi-transparent outfit",
+                "one hand on thigh, other on hip, seductive gaze, see-through mesh",
+                "back arched, chest forward, provocative stance, sheer fabric",
+            ],
+            "s2": [
+                "corset emphasized, garter belt visible, seductive smile, sheer panels",
+                "hip sway, hand sliding on thigh, erotic pose, transparent mesh",
+                "leaning slightly forward, inviting gaze, semi-transparent latex",
+            ],
+            "s3": [
+                "hands on hips, confident look, body glitter, see-through mesh",
+                "one hand behind head, other pointing down, provocative, transparent elements",
+                "leg lifted slightly on toe, arched back, seductive, semi-transparent",
+            ],
+        }
+        pose_variants = variant_descriptors_by_pose.get(pose, [])
+        pose_variant_desc = pose_variants[variant_idx % len(pose_variants)] if pose_variants else ""
+
+        # Quality settings
         quality_prompt = "masterpiece, best quality, high resolution, detailed, realistic, photorealistic"
-        
-        # Additional emphasis for full growth
+
+        # Full body emphasis (non-head)
         if pose != "head":
-            additional_emphasis = ("no cropping, standing full height, complete body shot")
+            full_body_emphasis = ("full body, full shot, long shot, complete figure visible, whole person visible, "
+                                "from head to feet, legs and feet visible, feet on ground, no cropping, "
+                                "entire body in frame, standing full height")
+            if pose == "nude":
+                full_body_emphasis = f"{full_body_emphasis}, legs apart, open-legged stance, hips forward, arched back"
         else:
-            additional_emphasis = ""
-        
-        # Lighting and style settings
+            full_body_emphasis = "tight headshot, face fills frame"
+
+        # Lighting/style
         style_prompt = "soft lighting, professional photography, clean background"
-        
-        # Compose prompt: FULL GROWTH FIRST!
-        prompt_parts = [priority_full_body, quality_prompt, base_prompt, pose_base, clothing_desc, additional_emphasis, style_prompt]
+
+        # Compose final prompt: put full body first for non-head
+        prompt_parts = [
+            full_body_emphasis if pose != "head" else "",
+            quality_prompt,
+            base_prompt,
+            pose_base,
+            clothing_desc,
+            pose_variant_desc,
+            style_prompt,
+        ]
         full_prompt = ", ".join(filter(None, prompt_parts))
-        
         return full_prompt
     
-    def generate_negative_prompt(self) -> str:
-        """Creates a negative prompt with emphasis against cropping"""
-        return ("low quality, blurry, distorted, deformed, ugly, bad anatomy, "
-                "bad face, poorly drawn face, deformed face, ugly face, asymmetrical face, asymmetrical eyes, cross-eye, lazy eye, extra eyes, missing eyes, mutated mouth, deformed mouth, huge nose, bad teeth, "
-                "extra limbs, missing limbs, watermark, signature, text, "
-                "bad hands, malformed hands, extra fingers, missing fingers, "
-                "cropped, cut off, incomplete body, missing legs, missing feet, "
-                "half body, bust shot, torso only, upper body only, portrait crop, "
-                "multiple people, two people, extra person, duplicate person, group, crowd, more than one person")
+    def generate_negative_prompt(self, pose: Optional[str] = None) -> str:
+        """Create negative prompt (pose-aware to enforce clothing rules and single person)."""
+        base = (
+            "low quality, blurry, distorted, deformed, ugly, bad anatomy, "
+            "bad face, poorly drawn face, deformed face, ugly face, asymmetrical face, asymmetrical eyes, cross-eye, lazy eye, extra eyes, missing eyes, mutated mouth, deformed mouth, huge nose, bad teeth, "
+            "extra limbs, missing limbs, watermark, signature, text, "
+            "bad hands, malformed hands, extra fingers, missing fingers, "
+            "cropped, cut off, incomplete body, missing legs, missing feet, "
+            "half body, bust shot, torso only, upper body only, portrait crop, "
+            "multiple people, two people, extra person, duplicate person, group, crowd, more than one person"
+        )
+        # Pose-specific constraints
+        clothing_tokens = "clothes, outfit, lingerie, bra, panties, swimsuit, bikini, dress, shirt, blouse, skirt, pants, jeans, stockings, pantyhose, socks"
+        nudity_tokens = "nude, naked, topless, bottomless, nipples, areola, pubic hair, vulva, penis, testicles, anus"
+        if pose in ("cas", "bc", "biz", "fun", "ss"):  # should be clothed
+            base = f"{base}, {nudity_tokens}"
+        if pose == "uw":  # underwear allowed, no explicit anatomy
+            base = f"{base}, nipples, areola, pubic hair, vulva, penis, testicles, anus"
+        if pose == "tl":  # topless allowed, but no bottomless or explicit
+            base = f"{base}, bottomless, pubic hair, vulva, penis, testicles, anus"
+        if pose == "nude":  # no clothing at all
+            base = f"{base}, {clothing_tokens}"
+        return base
     
-    def call_stable_diffusion_api(self, prompt: str, is_headshot: bool = False, seed: int = -1) -> Optional[Image.Image]:
-        """Calls Stable Diffusion WebUI API to generate an image"""
+    def call_stable_diffusion_api(self, prompt: str, is_headshot: bool = False, seed: int = -1, pose: Optional[str] = None) -> Optional[Image.Image]:
+        """Call Stable Diffusion WebUI txt2img API."""
         
-        # Image dimensions
-        width = 360 if is_headshot else 512
-        height = 480 if is_headshot else 800
+        # Image sizes
+        width = 360 if is_headshot else 640
+        height = 480 if is_headshot else 1024
         
-        steps = 40 if is_headshot else 30
-        cfg_scale = 8.0 if is_headshot else 7.5
+        steps = 40 if is_headshot else 34
+        cfg_scale = 8.0 if is_headshot else 8.0
         
         payload = {
             "prompt": prompt,
-            "negative_prompt": self.generate_negative_prompt(),
+            "negative_prompt": self.generate_negative_prompt(pose),
             "width": width,
             "height": height,
             "steps": steps,
@@ -527,6 +626,14 @@ class SCWImageGenerator:
         """Downscales headshot to 120x160 with high quality"""
         try:
             target_size = (120, 160)
+            return image.resize(target_size, Image.LANCZOS)
+        except Exception:
+            return image
+    
+    def postprocess_body(self, image: Image.Image) -> Image.Image:
+        """Downscale body image to 512x800 with high-quality resampling."""
+        try:
+            target_size = (512, 800)
             return image.resize(target_size, Image.LANCZOS)
         except Exception:
             return image
@@ -588,7 +695,7 @@ class SCWImageGenerator:
                 print(f"    Variant {variant_idx + 1}/{len(reveal_variants)} (reveal level: {reveal_level})")
                 
                 # Build prompt for this pose and reveal level
-                full_prompt = self.build_pose_prompt(base_prompt, pose, reveal_level)
+                full_prompt = self.build_pose_prompt(base_prompt, pose, reveal_level, variant_idx)
                 clothing_desc = self.get_clothing_description(pose, reveal_level)
                 print(f"      Clothing: {clothing_desc}")
                 
@@ -600,14 +707,14 @@ class SCWImageGenerator:
                 
                 # Generate image with persistent seed
                 is_headshot = pose == "head"
-                image = self.call_stable_diffusion_api(full_prompt, is_headshot, character_seed)
+                image = self.call_stable_diffusion_api(full_prompt, is_headshot, character_seed, pose)
                 
                 if image:
-                    # Post-process headshot
+                    # Post-process headshot/body
                     if is_headshot:
                         image = self.postprocess_headshot(image)
-                    # Background removal (not for headshots)
-                    if not is_headshot:
+                    else:
+                        image = self.postprocess_body(image)
                         image = self.remove_background(image)
                     
                     # Build filename and save

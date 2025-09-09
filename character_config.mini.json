@@ -1,0 +1,23 @@
+{
+  "character_presets": [
+    {"name": "mini_female_01", "gender": "f", "age_group": 2, "ethnicity": "w", "height": "m", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "l", "hair_color": "l", "hair_length": "l", "eye_color": "m"},
+    {"name": "mini_female_02", "gender": "f", "age_group": 1, "ethnicity": "h", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
+    {"name": "mini_female_03", "gender": "f", "age_group": 2, "ethnicity": "a", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "l"},
+    {"name": "mini_male_01",   "gender": "m", "age_group": 2, "ethnicity": "r", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"}
+  ],
+
+  "generation_settings": {
+    "default_poses": ["head", "cas", "uw", "nude", "bc", "fun"],
+    "female_additional_poses": ["tl", "ss", "s1"],
+    "steps": 30,
+    "cfg_scale": 12,
+    "sampler": "DPM++ 2M Karras",
+    "delay_between_generations": 2
+  },
+
+  "quality_settings": {
+    "base_prompt_quality": "masterpiece, best quality, high resolution, detailed, realistic, photorealistic",
+    "style_prompt": "soft lighting, professional photography, clean background",
+    "negative_prompt": "low quality, blurry, distorted, deformed, ugly, bad anatomy, extra limbs, missing limbs, watermark, signature, text, bad hands, malformed hands, extra fingers, missing fingers"
+  }
+}
