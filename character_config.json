@@ -1,0 +1,89 @@
+{
+  "character_presets": [
+    {
+      "name": "young_caucasian_woman",
+      "gender": "f",
+      "age_group": 2,
+      "ethnicity": "w",
+      "height": "m",
+      "body_shape": "n",
+      "hips_size": "m",
+      "breast_penis_size": "m",
+      "skin_tone": "l",
+      "hair_color": "l",
+      "hair_length": "l",
+      "eye_color": "m"
+    },
+    {
+      "name": "mature_asian_man",
+      "gender": "m",
+      "age_group": 4,
+      "ethnicity": "a",
+      "height": "m",
+      "body_shape": "f",
+      "hips_size": "s",
+      "breast_penis_size": "m",
+      "skin_tone": "l",
+      "hair_color": "d",
+      "hair_length": "s",
+      "eye_color": "d"
+    },
+    {
+      "name": "curvy_black_woman",
+      "gender": "f",
+      "age_group": 3,
+      "ethnicity": "b",
+      "height": "m",
+      "body_shape": "c",
+      "hips_size": "l",
+      "breast_penis_size": "l",
+      "skin_tone": "d",
+      "hair_color": "d",
+      "hair_length": "m",
+      "eye_color": "d"
+    },
+    {
+      "name": "hispanic_athletic_woman",
+      "gender": "f",
+      "age_group": 2,
+      "ethnicity": "h",
+      "height": "t",
+      "body_shape": "f",
+      "hips_size": "m",
+      "breast_penis_size": "m",
+      "skin_tone": "m",
+      "hair_color": "m",
+      "hair_length": "s",
+      "eye_color": "d"
+    },
+    {
+      "name": "middle_eastern_businessman",
+      "gender": "m",
+      "age_group": 3,
+      "ethnicity": "r",
+      "height": "t",
+      "body_shape": "n",
+      "hips_size": "s",
+      "breast_penis_size": "m",
+      "skin_tone": "m",
+      "hair_color": "d",
+      "hair_length": "m",
+      "eye_color": "d"
+    }
+  ],
+  
+  "generation_settings": {
+    "default_poses": ["head", "cas", "uw", "nude", "bc", "fun"],
+    "female_additional_poses": ["tl", "ss", "s1"],
+    "steps": 30,
+    "cfg_scale": 7.5,
+    "sampler": "DPM++ 2M Karras",
+    "delay_between_generations": 2
+  },
+  
+  "quality_settings": {
+    "base_prompt_quality": "masterpiece, best quality, high resolution, detailed, realistic, photorealistic",
+    "style_prompt": "soft lighting, professional photography, clean background",
+    "negative_prompt": "low quality, blurry, distorted, deformed, ugly, bad anatomy, extra limbs, missing limbs, watermark, signature, text, bad hands, malformed hands, extra fingers, missing fingers"
+  }
+}

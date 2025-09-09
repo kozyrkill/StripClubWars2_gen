@@ -1,0 +1,83 @@
+# Виртуальное окружение Python
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Сгенерированные изображения и медиа файлы
+generated_characters/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.ico
+*.svg
+
+# PDF файлы и документы
+*.pdf
+*.doc
+*.docx
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE файлы
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.spyderproject
+.spyproject
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Environments
+.env
+.venv
+
+# AI model files
+*.onnx
+*.pb
+*.h5
+*.safetensors
+*.ckpt
+
+# Local config files
+config.local.json
+local_settings.py
