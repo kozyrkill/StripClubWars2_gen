@@ -143,21 +143,51 @@ python scw_image_generator.py --test --output-dir ./my_characters
 - `s3` - стриптизерский наряд 3 (очень откровенный)
 - `preg` - беременная
 
+## Структура результата
+
+Каждый персонаж генерируется в отдельную папку с понятным именем и умным префиксом:
+
+```
+generated_characters/
+├── female_young_caucasian_01000/           # Молодая белая женщина
+│   ├── fyc_01000-01000-f2w-mnmml-llm-u-head.png   (голова)
+│   ├── fyc_01000-01000-z0-cas.png                  (повседневная, скромная)
+│   ├── fyc_01000-01000-z1-cas.png                  (повседневная, слегка откровенная)
+│   ├── fyc_01000-01000-z2-cas.png                  (повседневная, умеренно откровенная)
+│   ├── fyc_01000-01000-z3-uw.png                   (нижнее белье)
+│   ├── fyc_01000-01000-z9-nude.png                 (обнаженная)
+│   └── ... (19 изображений всего)
+├── male_mature_asian_10002/                # Зрелый азиатский мужчина  
+│   ├── mma_10002-10002-m4a-mfmml-dsd-u-head.png
+│   ├── mma_10002-10002-z0-cas.png
+│   └── ... (12 изображений)
+└── female_adult_hispanic_00005/            # Взрослая латиноамериканка
+    ├── fah_00005-00005-f3h-mnmml-dmd-u-head.png  
+    └── ...
+```
+
+### Умные префиксы изображений:
+- `fyc_01000` = **F**emale **Y**oung **C**aucasian + ID
+- `mma_10002` = **M**ale **M**ature **A**sian + ID  
+- `fah_00005` = **F**emale **A**dult **H**ispanic + ID
+- `msm_10004` = **M**ale **S**enior **M**iddleEastern + ID
+
 ## Формат имен файлов
 
 Генератор создает файлы в соответствии с требованиями SCW:
 
 ### Для головы
 ```
-modkey-id-reqphys-optphys-imgphys-special-head.png
-custom-01000-f2w-mnmml-llm-u-head.png
+prefix-id-reqphys-optphys-imgphys-special-head.png
+fyc_01000-01000-f2w-mnmml-llm-u-head.png
 ```
 
-### Для остальных поз
+### Для остальных поз (с множественными вариантами)
 ```
-modkey-id-reveal-pose.png
-custom-01000-z0-cas.png
-custom-01000-z9-nude.png
+prefix-id-reveal-pose.png
+fyc_01000-01000-z0-cas.png    # reveal=0 (скромная)
+fyc_01000-01000-z1-cas.png    # reveal=1 (слегка откровенная)
+fyc_01000-01000-z9-nude.png   # reveal=9 (обнаженная)
 ```
 
 ## Интеграция в игру
