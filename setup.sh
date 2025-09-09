@@ -1,46 +1,37 @@
-#!/bin/bash
-# Скрипт для установки зависимостей SCW Image Generator в виртуальное окружение
+#!/usr/bin/env bash
+# Installer script for SCW Image Generator in a virtual environment
 
-echo "Установка зависимостей для SCW Character Image Pack Generator..."
+echo "Installing dependencies for SCW Character Image Pack Generator..."
 
-# Проверка наличия Python
-if ! command -v python3 &> /dev/null; then
-    echo "Ошибка: Python 3 не найден. Установите Python 3.8 или выше."
+# Check Python
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "Error: Python 3 not found. Please install Python 3.8 or newer."
     exit 1
 fi
 
-# Создание виртуального окружения если его нет
+# Create virtual environment if missing
 if [ ! -d "venv" ]; then
-    echo "Создание виртуального окружения..."
-    python3 -m venv venv
-    if [ $? -ne 0 ]; then
-        echo "Ошибка создания виртуального окружения"
-        exit 1
-    fi
+    echo "Creating virtual environment..."
+    python3 -m venv venv || { echo "Failed to create virtual environment"; exit 1; }
 fi
 
-# Активация виртуального окружения и установка зависимостей
-echo "Активация виртуального окружения и установка зависимостей..."
+# Activate venv and install deps
+echo "Activating virtual environment and installing dependencies..."
 source venv/bin/activate
 
-# Обновление pip
-pip install --upgrade pip
+# Upgrade pip
+python -m pip install --upgrade pip
 
-# Установка зависимостей
-pip install -r requirements.txt
-
-if [ $? -eq 0 ]; then
-    echo "✓ Зависимости установлены успешно в виртуальное окружение!"
-    echo ""
-    echo "Для запуска генератора:"
-    echo "1. Активируйте виртуальное окружение:"
+# Install requirements
+if python -m pip install -r requirements.txt; then
+    echo "✓ Dependencies installed successfully in the virtual environment!"
+    echo "To run the generator:"
+    echo "1. Activate the virtual env:"
     echo "   source venv/bin/activate"
-    echo "2. Убедитесь что Stable Diffusion WebUI запущен с флагом --api"
-    echo "3. Проверьте подключение: python test_webui_connection.py"
-    echo "4. Запустите генератор: python scw_image_generator.py --test"
-    echo ""
-    echo "Или используйте activate.sh для быстрой активации"
+    echo "2. Ensure Stable Diffusion WebUI is running with --api"
+    echo "3. Generate: python scw_image_generator.py --test"
+    echo "Or use activate.sh for a quick activation"
 else
-    echo "✗ Ошибка установки зависимостей"
+    echo "✗ Dependency installation failed"
     exit 1
 fi

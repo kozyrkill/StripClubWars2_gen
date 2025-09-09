@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 SCW Character Image Pack Generator
-Генератор имедж-паков для игры Strip Club Wars 2
 
-Использует Stable Diffusion WebUI API для генерации изображений персонажей
-с последующей обработкой в соответствии с требованиями игры.
+Generates character image packs for Strip Club Wars 2
+
+Uses Stable Diffusion WebUI API to generate character images
+and post-processes them to meet game requirements.
 """
 
 import os
@@ -23,53 +24,53 @@ import time
 import random
 import datetime
 
-# Конфигурация Stable Diffusion WebUI
+# Stable Diffusion WebUI configuration
 WEBUI_URL = "http://localhost:7860"
 WEBUI_API_URL = f"{WEBUI_URL}/sdapi/v1"
 
 @dataclass
 class CharacterAttributes:
-    """Атрибуты персонажа для генерации"""
-    # Обязательные атрибуты (reqphys)
+    """Character attributes for generation"""
+    # Required attributes (reqphys)
     gender: str  # m/f
     age_group: int  # 0-5 (16-18, 18-24, 22-31, 28-42, 38-51, 48+)
     ethnicity: str  # w/b/h/a/r (white, black, hispanic, asian, middle-eastern)
     
-    # Опциональные атрибуты (optphys)
+    # Optional attributes (optphys)
     height: str = "m"  # t/m/s (tall, medium, short)
     body_shape: str = "n"  # s/n/c/f (slim, normal, curvy, fit)
     hips_size: str = "m"  # s/m/l (small, medium, large)
     breast_penis_size: str = "m"  # s/m/l/h/x (tiny, small, medium, large, huge, extra-huge)
     skin_tone: str = "l"  # l/m/d (light, medium, dark)
     
-    # Атрибуты изображения (imgphys)
+    # Image attributes (imgphys)
     hair_color: str = "m"  # l/m/d (light, medium, dark)
     hair_length: str = "m"  # b/s/m/l (bald, short, medium, long)
     eye_color: str = "m"  # l/m/d (light, medium, dark)
     
-    # Дополнительные детали для консистентности
+    # Additional details for consistency
     hair_style: str = "n"  # n/s/c/w (normal, straight, curly, wavy)
-    facial_hair: str = "n"  # n/m/b/f (none, mustache, beard, full_beard) - только для мужчин
-    makeup: str = "n"  # n/l/m/h (none, light, medium, heavy) - только для женщин
+    facial_hair: str = "n"  # n/m/b/f (none, mustache, beard, full_beard) - males only
+    makeup: str = "n"  # n/l/m/h (none, light, medium, heavy) - females only
     tattoos: str = "n"  # n/s/m/l (none, small, medium, large)
     piercings: str = "n"  # n/e/o/m (none, ears, nose, multiple)
     expression: str = "n"  # n/s/h/f (neutral, smile, happy, flirty)
     clothing_style: str = "c"  # c/e/g/s (casual, elegant, gothic, sporty)
 
-# Конфигурация поз и их откровенности (с поддержкой множественных вариантов)
+# Poses configuration with reveal variants (supports multiple variants)
 POSES_CONFIG = {
-    # Базовые позы для всех персонажей
+    # Base poses for all characters
     "head": {"reveal_variants": [0], "required": True, "description": "headshot"},
     "cas": {"reveal_variants": [0, 1, 2], "required": True, "description": "casual clothes"},
     "uw": {"reveal_variants": [3, 4, 5], "required": True, "description": "underwear"},
     "nude": {"reveal_variants": [9, 10, 11], "required": True, "description": "nude"},
     
-    # Дополнительные позы
+    # Additional poses
     "bc": {"reveal_variants": [0, 1], "required": False, "description": "business casual"},
     "biz": {"reveal_variants": [0, 1], "required": False, "description": "business suit"},
     "fun": {"reveal_variants": [0, 1, 2], "required": False, "description": "fun/workout clothes"},
     
-    # Только для женщин
+    # Female-only
     "tl": {"reveal_variants": [6, 7, 8], "required": False, "description": "topless", "female_only": True},
     "ss": {"reveal_variants": [2, 3, 4], "required": False, "description": "swimsuit", "female_only": True},
     "s1": {"reveal_variants": [1, 2, 3], "required": False, "description": "stripper outfit 1", "female_only": True},
@@ -78,7 +79,7 @@ POSES_CONFIG = {
     "preg": {"reveal_variants": [1, 3, 6], "required": False, "description": "pregnant", "female_only": True},
 }
 
-# Словари для перевода атрибутов в промпты
+# Dictionaries for translating attributes to prompts
 GENDER_PROMPTS = {
     "f": "beautiful woman, female",
     "m": "handsome man, male"
@@ -122,22 +123,22 @@ HAIR_LENGTH_PROMPTS = {
 }
 
 POSE_PROMPTS = {
-    "head": "portrait, headshot, face focus, upper body",
-    "cas": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "bc": "full body, head to toe, legs visible, feet visible, standing pose, complete figure", 
-    "biz": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "fun": "full body, head to toe, legs visible, feet visible, active pose, complete figure",
-    "uw": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "ss": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "tl": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "nude": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "s1": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "s2": "full body, head to toe, legs visible, feet visible, standing pose, complete figure", 
-    "s3": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
-    "preg": "full body, head to toe, legs visible, feet visible, standing pose, complete figure"
+    "head": "close-up portrait, headshot, face centered, looking at viewer, studio lighting, beauty lighting, soft light, smooth skin, detailed eyes, catchlight in eyes, symmetrical face",
+    "cas": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "bc": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure", 
+    "biz": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "fun": "full body, full body shot, head to toe, legs visible, feet visible, active pose, complete figure",
+    "uw": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "ss": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "tl": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "nude": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure, nude, naked, no clothes, without clothing, no outfit, no lingerie, no bra, no panties",
+    "s1": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "s2": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure", 
+    "s3": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "preg": "full body, full body shot, head to toe, legs visible, feet visible, standing pose, complete figure"
 }
 
-# Новые словари для дополнительных деталей
+# New dictionaries for additional details
 HAIR_STYLE_PROMPTS = {
     "n": "natural hair",
     "s": "straight hair",
@@ -146,7 +147,7 @@ HAIR_STYLE_PROMPTS = {
 }
 
 FACIAL_HAIR_PROMPTS = {
-    "n": "",  # нет растительности
+    "n": "",  # no facial hair
     "m": "mustache",
     "b": "beard, facial hair",
     "f": "full beard, heavy facial hair"
@@ -160,14 +161,14 @@ MAKEUP_PROMPTS = {
 }
 
 TATTOO_PROMPTS = {
-    "n": "",  # нет татуировок
+    "n": "",  # no tattoos
     "s": "small tattoo",
     "m": "tattoos, body art",
     "l": "many tattoos, heavily tattooed"
 }
 
 PIERCINGS_PROMPTS = {
-    "n": "",  # нет пирсинга
+    "n": "",  # no piercings
     "e": "ear piercings",
     "o": "nose piercing",
     "m": "multiple piercings, facial piercings"
@@ -188,21 +189,21 @@ CLOTHING_STYLE_PROMPTS = {
 }
 
 class SCWImageGenerator:
-    """Генератор изображений для SCW"""
+    """SCW image generator"""
     
     def __init__(self, output_dir: str = "generated_characters", modkey: str = "custom"):
         self.output_dir = Path(output_dir)
         self.modkey = modkey
         
-        # Создаем папку для этой сессии на основе времени
+        # Create a new session directory based on timestamp
         session_timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self.session_dir = self.output_dir / f"session_{session_timestamp}"
         self.session_dir.mkdir(parents=True, exist_ok=True)
         
-        print(f"📁 Сессия: {self.session_dir.name}")
+        print(f"📁 Session: {self.session_dir.name}")
         
     def check_webui_connection(self) -> bool:
-        """Проверяет соединение с Stable Diffusion WebUI"""
+        """Check connection to Stable Diffusion WebUI"""
         try:
             response = requests.get(f"{WEBUI_API_URL}/options")
             return response.status_code == 200
@@ -210,84 +211,84 @@ class SCWImageGenerator:
             return False
     
     def generate_character_id(self, character: CharacterAttributes) -> str:
-        """Генерирует случайный ID на основе времени"""
-        # Используем текущее время в микросекундах для уникальности
-        timestamp = int(time.time() * 1000000)  # микросекунды
-        random_part = random.randint(100, 999)  # добавляем случайность
+        """Generate random character ID based on current time"""
+        # Use current time in microseconds for uniqueness
+        timestamp = int(time.time() * 1000000)  # microseconds
+        random_part = random.randint(100, 999)  # add randomness
         
         if character.gender == "f":
-            # Женщины: берем последние 5 цифр (начинается с 0-4)
+            # Females: last 5 digits (0-49999)
             char_id = f"{(timestamp + random_part) % 50000:05d}"
         else:
-            # Мужчины: добавляем 10000 + последние 4 цифры
+            # Males: 10000 + last 4 digits
             char_id = f"{10000 + (timestamp + random_part) % 10000:05d}"
         
         return char_id
     
     def generate_character_seed(self, char_id: str) -> int:
-        """Генерирует постоянный seed для персонажа на основе его ID"""
-        # Используем хеш ID для получения постоянного seed
+        """Generates a persistent seed for the character based on its ID"""
+        # Use hash of ID to get a persistent seed
         import hashlib
         hash_obj = hashlib.md5(f"{self.modkey}-{char_id}".encode())
-        # Берем первые 8 байт хеша и преобразуем в int (максимум для seed в SD)
-        seed = int(hash_obj.hexdigest()[:8], 16) % (2**31 - 1)  # Ограничиваем 31 битом
+        # Take first 8 bytes of hash and convert to int (max for SD seed)
+        seed = int(hash_obj.hexdigest()[:8], 16) % (2**31 - 1)  # Limit to 31 bits
         return seed
     
     def build_base_prompt(self, character: CharacterAttributes) -> str:
-        """Создает базовый промпт для персонажа с всеми деталями"""
+        """Creates a base prompt for the character with all details"""
         prompt_parts = []
         
-        # Основные характеристики
+        # Main characteristics
         prompt_parts.append(GENDER_PROMPTS[character.gender])
         prompt_parts.append(AGE_PROMPTS[character.age_group])
         prompt_parts.append(ETHNICITY_PROMPTS[character.ethnicity])
         
-        # Телосложение
+        # Body shape
         prompt_parts.append(BODY_SHAPE_PROMPTS[character.body_shape])
         
-        # Волосы (основные)
+        # Hair (main)
         prompt_parts.append(HAIR_COLOR_PROMPTS[character.hair_color])
         prompt_parts.append(HAIR_LENGTH_PROMPTS[character.hair_length])
         
-        # Стиль волос
+        # Hair style
         hair_style_prompt = HAIR_STYLE_PROMPTS.get(character.hair_style, "")
         if hair_style_prompt:
             prompt_parts.append(hair_style_prompt)
         
-        # Глаза
-        if character.eye_color in ["l", "d"]:  # только если не стандартные
+        # Eyes
+        if character.eye_color in ["l", "d"]:  # only if not default
             prompt_parts.append(f"{character.eye_color} eyes")
         
-        # Выражение лица
+        # Facial expression
         expression_prompt = EXPRESSION_PROMPTS.get(character.expression, "")
         if expression_prompt:
             prompt_parts.append(expression_prompt)
         
-        # Растительность на лице (только для мужчин)
+        # Facial hair (males only)
         if character.gender == "m" and character.facial_hair != "n":
             facial_hair_prompt = FACIAL_HAIR_PROMPTS.get(character.facial_hair, "")
             if facial_hair_prompt:
                 prompt_parts.append(facial_hair_prompt)
         
-        # Макияж (только для женщин)
+        # Makeup (females only)
         if character.gender == "f" and character.makeup != "n":
             makeup_prompt = MAKEUP_PROMPTS.get(character.makeup, "")
             if makeup_prompt:
                 prompt_parts.append(makeup_prompt)
         
-        # Татуировки
+        # Tattoos
         if character.tattoos != "n":
             tattoo_prompt = TATTOO_PROMPTS.get(character.tattoos, "")
             if tattoo_prompt:
                 prompt_parts.append(tattoo_prompt)
         
-        # Пирсинг
+        # Piercings
         if character.piercings != "n":
             piercing_prompt = PIERCINGS_PROMPTS.get(character.piercings, "")
             if piercing_prompt:
                 prompt_parts.append(piercing_prompt)
         
-        # Размеры груди/тела
+        # Body size details
         if character.breast_penis_size == "s":
             if character.gender == "f":
                 prompt_parts.append("small breasts, tiny chest, petite bust")
@@ -309,16 +310,16 @@ class SCWImageGenerator:
             else:
                 prompt_parts.append("extremely muscular, bodybuilder")
         
-        # Стиль одежды (применяется к позам одежды)
+        # Clothing style (applies to clothing poses)
         if hasattr(character, 'clothing_style') and character.clothing_style != "c":
             style_prompt = CLOTHING_STYLE_PROMPTS.get(character.clothing_style, "")
             if style_prompt:
                 prompt_parts.append(style_prompt)
         
-        return ", ".join(filter(None, prompt_parts))  # фильтруем пустые строки
+        return ", ".join(filter(None, prompt_parts))  # filter empty parts
     
     def get_footwear_description(self, pose: str, reveal_level: int) -> str:
-        """Возвращает описание обуви и чулок для позы и уровня откровенности"""
+        """Returns footwear and stockings description for a pose and reveal level"""
         
         footwear_variants = {
             "cas": {
@@ -371,9 +372,13 @@ class SCWImageGenerator:
         return footwear
 
     def get_clothing_description(self, pose: str, reveal_level: int) -> str:
-        """Возвращает полное описание одежды включая обувь для позы и уровня откровенности"""
+        """Returns full clothing description including footwear for a pose and reveal level"""
         
-        # Детальные варианты одежды для разных поз и уровней
+        # Hard mode for nude: no clothing, bare feet
+        if pose == "nude":
+            return "no clothing, fully nude, bare skin, no outfit, no lingerie, bare feet"
+        
+        # Detailed clothing variants for different poses and reveal levels
         clothing_variants = {
             "cas": {
                 0: "blue jeans and white t-shirt, casual everyday outfit",
@@ -402,14 +407,14 @@ class SCWImageGenerator:
             },
         }
         
-        # Получаем описание одежды
+        # Get clothing description
         pose_clothing = clothing_variants.get(pose, {})
         clothing_desc = pose_clothing.get(reveal_level, "")
         
-        # Получаем описание обуви
+        # Get footwear description
         footwear_desc = self.get_footwear_description(pose, reveal_level)
         
-        # Если нет конкретного варианта одежды, используем общее описание
+        # If no specific clothing variant, use general description
         if not clothing_desc:
             general_clothing = {
                 0: "conservative modest clothing, fully covered",
@@ -422,62 +427,67 @@ class SCWImageGenerator:
             }
             clothing_desc = general_clothing.get(reveal_level, "appropriate clothing")
         
-        # Комбинируем одежду и обувь
+        # Combine clothing and footwear
         full_description = f"{clothing_desc}, {footwear_desc}"
         return full_description
     
     def build_pose_prompt(self, base_prompt: str, pose: str, reveal_level: int = 0) -> str:
-        """Создает промпт для конкретной позы с детальным описанием одежды"""
+        """Creates a prompt for a specific pose with detailed clothing description"""
         pose_base = POSE_PROMPTS.get(pose, "")
         clothing_desc = self.get_clothing_description(pose, reveal_level)
         
-        # КРИТИЧЕСКИ ВАЖНО: full body промпт в самом начале для максимального приоритета
+        # CRITICALLY IMPORTANT: full body prompt at the very beginning for maximum priority
         if pose != "head":
             priority_full_body = ("full body, complete figure, head to toe, legs visible, feet visible, "
                                  "whole person visible, entire body in frame")
         else:
             priority_full_body = ""
         
-        # Базовые настройки качества
+        # Base quality settings
         quality_prompt = "masterpiece, best quality, high resolution, detailed, realistic, photorealistic"
         
-        # Дополнительные усиления для полного роста
+        # Additional emphasis for full growth
         if pose != "head":
             additional_emphasis = ("no cropping, standing full height, complete body shot")
         else:
             additional_emphasis = ""
         
-        # Настройки освещения и стиля
+        # Lighting and style settings
         style_prompt = "soft lighting, professional photography, clean background"
         
-        # Компонуем промпт: ПОЛНЫЙ РОСТ ПЕРВЫМ!
+        # Compose prompt: FULL GROWTH FIRST!
         prompt_parts = [priority_full_body, quality_prompt, base_prompt, pose_base, clothing_desc, additional_emphasis, style_prompt]
         full_prompt = ", ".join(filter(None, prompt_parts))
         
         return full_prompt
     
     def generate_negative_prompt(self) -> str:
-        """Создает негативный промпт с акцентом против обрезки"""
+        """Creates a negative prompt with emphasis against cropping"""
         return ("low quality, blurry, distorted, deformed, ugly, bad anatomy, "
+                "bad face, poorly drawn face, deformed face, ugly face, asymmetrical face, asymmetrical eyes, cross-eye, lazy eye, extra eyes, missing eyes, mutated mouth, deformed mouth, huge nose, bad teeth, "
                 "extra limbs, missing limbs, watermark, signature, text, "
                 "bad hands, malformed hands, extra fingers, missing fingers, "
                 "cropped, cut off, incomplete body, missing legs, missing feet, "
-                "half body, bust shot, torso only, upper body only, portrait crop")
+                "half body, bust shot, torso only, upper body only, portrait crop, "
+                "multiple people, two people, extra person, duplicate person, group, crowd, more than one person")
     
     def call_stable_diffusion_api(self, prompt: str, is_headshot: bool = False, seed: int = -1) -> Optional[Image.Image]:
-        """Вызывает API Stable Diffusion WebUI для генерации изображения"""
+        """Calls Stable Diffusion WebUI API to generate an image"""
         
-        # Размеры изображения
-        width = 120 if is_headshot else 512
-        height = 160 if is_headshot else 800
+        # Image dimensions
+        width = 360 if is_headshot else 512
+        height = 480 if is_headshot else 800
+        
+        steps = 40 if is_headshot else 30
+        cfg_scale = 8.0 if is_headshot else 7.5
         
         payload = {
             "prompt": prompt,
             "negative_prompt": self.generate_negative_prompt(),
             "width": width,
             "height": height,
-            "steps": 30,
-            "cfg_scale": 7.5,
+            "steps": steps,
+            "cfg_scale": cfg_scale,
             "sampler_name": "DPM++ 2M Karras",
             "batch_size": 1,
             "n_iter": 1,
@@ -490,130 +500,140 @@ class SCWImageGenerator:
             if response.status_code == 200:
                 result = response.json()
                 if result.get("images"):
-                    # Декодируем base64 изображение
+                    # Decode base64 image
                     image_data = base64.b64decode(result["images"][0])
                     return Image.open(io.BytesIO(image_data))
             return None
         except Exception as e:
-            print(f"Ошибка генерации изображения: {e}")
+            print(f"Image generation error: {e}")
             return None
     
     def remove_background(self, image: Image.Image) -> Image.Image:
-        """Удаляет фон с изображения"""
+        """Remove background from image"""
         try:
-            # Конвертируем в RGB если нужно
+            # Convert to RGB if needed
             if image.mode != "RGB":
                 image = image.convert("RGB")
             
-            # Удаляем фон с помощью rembg
+            # Remove background via rembg
             output = remove(image)
             return output
         except Exception as e:
-            print(f"Ошибка удаления фона: {e}")
-            # Возвращаем оригинальное изображение в случае ошибки
+            print(f"Background removal error: {e}")
+            # Return original image on error
+            return image
+    
+    def postprocess_headshot(self, image: Image.Image) -> Image.Image:
+        """Downscales headshot to 120x160 with high quality"""
+        try:
+            target_size = (120, 160)
+            return image.resize(target_size, Image.LANCZOS)
+        except Exception:
             return image
     
     def generate_filename(self, character: CharacterAttributes, char_id: str, pose: str, 
                          reveal_level: int = 0) -> str:
-        """Генерирует имя файла в соответствии с форматом SCW"""
+        """Generates filename following SCW format"""
         
         if pose == "head":
-            # Формат для головы: modkey-id-reqphys-optphys-imgphys-special-head.png
+            # Head format: modkey-id-reqphys-optphys-imgphys-special-head.png
             reqphys = f"{character.gender}{character.age_group}{character.ethnicity}"
             optphys = f"{character.height}{character.body_shape}{character.hips_size}{character.breast_penis_size}{character.skin_tone}"
             imgphys = f"{character.hair_color}{character.hair_length}{character.eye_color}"
-            special = "u"  # обычный персонаж
+            special = "u"  # regular character
             
             filename = f"{self.modkey}-{char_id}-{reqphys}-{optphys}-{imgphys}-{special}-head.png"
         else:
-            # Формат для остальных поз: modkey-id-reveal-pose.png
+            # Other poses format: modkey-id-reveal-pose.png
             filename = f"{self.modkey}-{char_id}-z{reveal_level}-{pose}.png"
         
         return filename
     
     def generate_character_images(self, character: CharacterAttributes, poses: List[str] = None) -> Dict[str, str]:
-        """Генерирует все изображения для персонажа с множественными вариантами"""
+        """Generates all images for a character with multiple variants"""
         
         if poses is None:
-            # Генерируем все обязательные позы
+            # Generate all required poses
             poses = [pose for pose, config in POSES_CONFIG.items() 
                     if config.get("required", False)]
             
-            # Добавляем женские позы если персонаж женского пола
+            # Add female-only poses if character is female
             if character.gender == "f":
                 female_poses = [pose for pose, config in POSES_CONFIG.items() 
                               if config.get("female_only", False)]
-                poses.extend(female_poses[:3])  # Добавляем первые 3 женские позы
+                poses.extend(female_poses[:3])  # Add first 3 female-only poses
         
         char_id = self.generate_character_id(character)
         character_seed = self.generate_character_seed(char_id)
         base_prompt = self.build_base_prompt(character)
         
-        print(f"Генерирую персонажа {char_id} (seed: {character_seed})")
-        print(f"  Атрибуты: {character.gender}, возраст {character.age_group}, {character.ethnicity}")
-        print(f"  Разнообразие через разную одежду по уровням откровенности")
+        print(f"Generating character {char_id} (seed: {character_seed})")
+        print(f"  Attributes: gender={character.gender}, age_group={character.age_group}, ethnicity={character.ethnicity}")
+        print(f"  Variety via clothing per reveal level")
         
         generated_files = {}
         
         for pose in poses:
-            # Пропускаем женские позы для мужских персонажей
+            # Skip female-only poses for male characters
             if POSES_CONFIG[pose].get("female_only", False) and character.gender == "m":
                 continue
                 
-            print(f"  Генерирую позу: {pose}")
+            print(f"  Pose: {pose}")
             
-            # Получаем варианты уровней откровенности для этой позы
+            # Reveal variants for this pose
             reveal_variants = POSES_CONFIG[pose].get("reveal_variants", [0])
             pose_files = []
             
             for variant_idx, reveal_level in enumerate(reveal_variants):
-                print(f"    Вариант {variant_idx + 1}/{len(reveal_variants)} (уровень откровенности: {reveal_level})")
+                print(f"    Variant {variant_idx + 1}/{len(reveal_variants)} (reveal level: {reveal_level})")
                 
-                # Создаем промпт для позы с учетом уровня откровенности
+                # Build prompt for this pose and reveal level
                 full_prompt = self.build_pose_prompt(base_prompt, pose, reveal_level)
                 clothing_desc = self.get_clothing_description(pose, reveal_level)
-                print(f"      Одежда: {clothing_desc}")
+                print(f"      Clothing: {clothing_desc}")
                 
-                # Выводим полный промпт в консоль
-                print(f"      📝 ПОЛНЫЙ ПРОМПТ:")
+                # Log full prompts
+                print(f"      📝 FULL PROMPT:")
                 print(f"         {full_prompt}")
-                print(f"      📝 НЕГАТИВНЫЙ ПРОМПТ:")
+                print(f"      📝 NEGATIVE PROMPT:")
                 print(f"         {self.generate_negative_prompt()}")
                 
-                # Генерируем изображение с постоянным seed персонажа
+                # Generate image with persistent seed
                 is_headshot = pose == "head"
                 image = self.call_stable_diffusion_api(full_prompt, is_headshot, character_seed)
                 
                 if image:
-                    # Удаляем фон (кроме головы, для неё это менее критично)
+                    # Post-process headshot
+                    if is_headshot:
+                        image = self.postprocess_headshot(image)
+                    # Background removal (not for headshots)
                     if not is_headshot:
                         image = self.remove_background(image)
                     
-                    # Генерируем имя файла в правильном формате SCW
+                    # Build filename and save
                     filename = self.generate_filename(character, char_id, pose, reveal_level)
                     filepath = self.session_dir / filename
                     
-                    # Сохраняем изображение в папку сессии
                     image.save(filepath, "PNG")
                     pose_files.append(str(filepath))
                     
-                    print(f"      Сохранено: {filename}")
+                    print(f"      Saved: {filename}")
                     
-                    # Небольшая пауза между генерациями
+                    # Small delay between generations
                     time.sleep(1)
                 else:
-                    print(f"      Ошибка генерации варианта {variant_idx + 1}")
+                    print(f"      Variant generation error {variant_idx + 1}")
             
             if pose_files:
                 generated_files[pose] = pose_files
-                print(f"    ✅ Создано {len(pose_files)} вариантов позы {pose}")
+                print(f"    ✅ Created {len(pose_files)} variants for pose {pose}")
             else:
-                print(f"    ❌ Не удалось создать ни одного варианта позы {pose}")
+                print(f"    ❌ Failed to create any variants for pose {pose}")
         
         return generated_files
 
     def load_characters_from_config(self, config_file: str) -> List[CharacterAttributes]:
-        """Загружает персонажей из JSON конфигурации"""
+        """Load characters from JSON configuration"""
         characters = []
         
         try:
@@ -637,13 +657,13 @@ class SCWImageGenerator:
                 characters.append(character)
                 
         except Exception as e:
-            print(f"Ошибка загрузки конфигурации: {e}")
+            print(f"Config load error: {e}")
             return self.create_sample_characters()
             
         return characters
     
     def create_sample_characters(self) -> List[CharacterAttributes]:
-        """Создает примеры персонажей для тестирования"""
+        """Create sample characters for testing"""
         characters = []
         
         characters.append(CharacterAttributes(
@@ -664,12 +684,12 @@ class SCWImageGenerator:
         return characters
         
     def load_test_characters(self, test_type: str = "simple") -> List[CharacterAttributes]:
-        """Загружает тестовых персонажей из JSON файла"""
+        """Load test characters from JSON file"""
         try:
             with open("test_characters.json", "r", encoding="utf-8") as f:
                 data = json.load(f)
             
-            # Выбираем нужный набор персонажей
+            # Select the desired character set
             if test_type == "simple":
                 character_data = data.get("simple_characters", [])
             elif test_type == "detailed":
@@ -687,65 +707,65 @@ class SCWImageGenerator:
             return characters
             
         except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
-            print(f"⚠️ Ошибка загрузки test_characters.json: {e}")
-            print("Используем базовые персонажи")
+            print(f"⚠️ test_characters.json load error: {e}")
+            print("Falling back to built-in sample characters")
             return self.create_sample_characters()
 
 def main():
-    """Основная функция"""
+    """Entry point"""
     parser = argparse.ArgumentParser(description="SCW Character Image Generator")
     parser.add_argument("--output-dir", default="generated_characters", 
-                       help="Директория для сохранения изображений")
+                       help="Directory to save generated images")
     parser.add_argument("--modkey", default="custom", 
-                       help="Ключ мода для имен файлов")
+                       help="Mod key used in filenames")
     parser.add_argument("--test", action="store_true",
-                       help="Генерировать тестовых персонажей")
+                       help="Generate test characters")
     parser.add_argument("--test-type", choices=["simple", "detailed", "extreme"], default="simple",
-                       help="Тип тестовых персонажей: simple/detailed/extreme")
+                       help="Type of test characters: simple/detailed/extreme")
     parser.add_argument("--config", type=str,
-                       help="JSON файл с конфигурацией персонажей")
+                       help="Path to JSON config with characters")
     parser.add_argument("--count", type=int, default=None,
-                       help="Количество персонажей для генерации (для --config)")
+                       help="Number of characters to generate (with --config)")
     
     args = parser.parse_args()
     
     generator = SCWImageGenerator(args.output_dir, args.modkey)
     
-    # Проверяем подключение к WebUI
+    # Check WebUI connection
     if not generator.check_webui_connection():
-        print(f"Ошибка: не удается подключиться к Stable Diffusion WebUI на {WEBUI_URL}")
-        print("Убедитесь что WebUI запущен с флагом --api")
+        print(f"Error: unable to connect to Stable Diffusion WebUI at {WEBUI_URL}")
+        print("Ensure WebUI is running with --api flag")
         return
     
-    print(f"Подключение к WebUI успешно: {WEBUI_URL}")
+    print(f"Connected to WebUI: {WEBUI_URL}")
     
     characters = []
     
     if args.config:
-        # Загружаем персонажей из конфигурации
+        # Load characters from config
         characters = generator.load_characters_from_config(args.config)
         if args.count and args.count < len(characters):
             characters = characters[:args.count]
     elif args.test:
-        # Генерируем тестовых персонажей выбранного типа
-        print(f"🧪 Режим тестирования: {args.test_type} персонажи")
+        # Load test characters of selected type
+        print(f"🧪 Test mode: {args.test_type} characters")
         characters = generator.load_test_characters(args.test_type)
     else:
-        print("Используйте один из флагов:")
-        print("  --test                    - генерировать примеры персонажей")
-        print("  --config character_config.json - загрузить персонажей из файла")
+        print("Use one of the flags:")
+        print("  --test                          - generate sample characters")
+        print("  --config character_config.json  - load characters from file")
         return
     
     if characters:
-        print(f"Начинаю генерацию {len(characters)} персонажей...")
+        print(f"Starting generation for {len(characters)} characters...")
         successful = 0
         
         for i, character in enumerate(characters, 1):
-            print(f"\nГенерирую персонажа {i}/{len(characters)}")
+            print(f"\nGenerating character {i}/{len(characters)}")
             try:
                 generated_files = generator.generate_character_images(character)
                 if generated_files:
-                    # Подсчитываем общее количество сгенерированных изображений
+                    # Count total generated images
                     total_images = 0
                     for pose_files in generated_files.values():
                         if isinstance(pose_files, list):
@@ -753,20 +773,20 @@ def main():
                         else:
                             total_images += 1
                     
-                    print(f"✓ Сгенерировано {total_images} изображений ({len(generated_files)} поз)")
+                    print(f"✓ Generated {total_images} images ({len(generated_files)} poses)")
                     successful += 1
                 else:
-                    print("✗ Не удалось сгенерировать изображения")
+                    print("✗ Failed to generate images")
             except KeyboardInterrupt:
-                print("\nГенерация прервана пользователем")
+                print("\nGeneration interrupted by user")
                 break
             except Exception as e:
-                print(f"✗ Ошибка генерации персонажа: {e}")
+                print(f"✗ Character generation error: {e}")
                 continue
         
-        print(f"\nГенерация завершена. Успешно создано: {successful}/{len(characters)} персонажей")
+        print(f"\nGeneration completed. Successfully created: {successful}/{len(characters)} characters")
     else:
-        print("Нет персонажей для генерации")
+        print("No characters to generate")
 
 if __name__ == "__main__":
     main()

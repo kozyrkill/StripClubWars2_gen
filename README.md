@@ -1,84 +1,85 @@
 # SCW Character Image Pack Generator
 
-Генератор имедж-паков персонажей для игры Strip Club Wars 2 с использованием Stable Diffusion WebUI.
+Generate Strip Club Wars 2 character image packs using Stable Diffusion WebUI.
 
-## Возможности
+## Features
 
-- ✅ Автоматическая генерация всех типов изображений персонажей (13 поз)
-- ✅ Поддержка всех атрибутов персонажей из игры (пол, этничность, возраст, телосложение)
-- ✅ Правильное именование файлов согласно стандартам SCW
-- ✅ Автоматическое удаление фона с изображений
-- ✅ Подходящие размеры изображений (512x800 для тела, 120x160 для головы)
-- ✅ Конфигурация персонажей через JSON файлы
-- ✅ Пакетная генерация множества персонажей
+- ✅ Automatic generation of all character image types (poses)
+- ✅ Full support for SCW character attributes (gender, ethnicity, age, body type)
+- ✅ Correct file naming following SCW standards
+- ✅ Automatic background removal for body images
+- ✅ Correct image sizes (512x800 for body, 120x160 for head)
+- ✅ JSON-based character configuration
+- ✅ Batch generation for multiple characters
 
-## Установка
+## Installation
 
-### Требования
+### Requirements
 
-1. **Stable Diffusion WebUI** должен быть запущен на порту 7860 с включенным API:
+1. Stable Diffusion WebUI running on port 7860 with API enabled:
    ```bash
    python launch.py --api
    ```
 
-2. **Python 3.8+** с pip
+2. Python 3.8+ with pip
 
-### Установка зависимостей
+### Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Использование
+## Usage
 
-### Быстрый старт
+### Quick start
 
-Генерация тестовых персонажей:
+Generate sample characters:
 
 ```bash
 python scw_image_generator.py --test
 ```
 
-### Генерация из конфигурации
+### Generate from config
 
-Создайте или отредактируйте файл `character_config.json` и запустите:
+Create or edit `character_config.json` and run:
 
 ```bash
 python scw_image_generator.py --config character_config.json
 ```
 
-### Параметры командной строки
+### CLI options
 
 ```bash
 python scw_image_generator.py --help
 ```
 
-Доступные параметры:
-- `--output-dir` - директория для сохранения изображений (по умолчанию: `generated_characters`)
-- `--modkey` - ключ мода для имен файлов (по умолчанию: `custom`)
-- `--test` - генерировать тестовых персонажей
-- `--config` - путь к JSON файлу с конфигурацией персонажей
-- `--count` - ограничить количество персонажей из конфигурации
+Available options:
+- `--output-dir` - directory to save images (default: `generated_characters`)
+- `--modkey` - module key used in filenames (default: `custom`)
+- `--test` - generate sample characters
+- `--test-type` - simple/detailed/extreme sample sets (default: simple)
+- `--config` - path to JSON file with character presets
+- `--count` - limit number of characters from config
 
-### Примеры использования
+### Examples
 
 ```bash
-# Генерация тестовых персонажей
+# Generate sample characters
 python scw_image_generator.py --test
 
-# Генерация из конфигурации с собственным ключом мода
+# Generate from config with custom mod key
 python scw_image_generator.py --config character_config.json --modkey mymod
 
-# Генерация только первых 3 персонажей из конфигурации
+# Generate only first 3 characters from config
 python scw_image_generator.py --config character_config.json --count 3
 
-# Сохранение в определенную папку
+# Save to a specific directory
 python scw_image_generator.py --test --output-dir ./my_characters
 ```
 
-## Структура конфигурации
+## Config structure
 
-Файл `character_config.json` содержит настройки персонажей:
+File `character_config.json` example:
 
 ```json
 {
@@ -101,124 +102,108 @@ python scw_image_generator.py --test --output-dir ./my_characters
 }
 ```
 
-### Атрибуты персонажей
+### Character attributes
 
-#### Обязательные атрибуты (reqphys)
-- `gender`: пол - `"f"` (женский) или `"m"` (мужской)
-- `age_group`: возрастная группа - `1-5` (18-24, 22-31, 28-42, 38-51, 48+)
-- `ethnicity`: этничность - `"w"` (белый), `"b"` (черный), `"h"` (латиноамериканец), `"a"` (азиат), `"r"` (ближневосточный)
+#### Required (reqphys)
+- `gender`: "f" (female) or "m" (male)
+- `age_group`: 1-5 (18-24, 22-31, 28-42, 38-51, 48+)
+- `ethnicity`: "w" (white), "b" (black), "h" (hispanic), "a" (asian), "r" (middle eastern)
 
-#### Опциональные атрибуты (optphys)
-- `height`: рост - `"t"` (высокий), `"m"` (средний), `"s"` (низкий)
-- `body_shape`: телосложение - `"s"` (худой), `"n"` (обычный), `"c"` (пышный), `"f"` (спортивный)
-- `hips_size`: размер бедер - `"s"` (маленький), `"m"` (средний), `"l"` (большой)
-- `breast_penis_size`: размер груди/пениса - `"s"`, `"m"`, `"l"`, `"h"` (огромный)
-- `skin_tone`: тон кожи - `"l"` (светлый), `"m"` (средний), `"d"` (темный)
+#### Optional (optphys)
+- `height`: "t" (tall), "m" (medium), "s" (short)
+- `body_shape`: "s" (slim), "n" (normal), "c" (curvy), "f" (fit)
+- `hips_size`: "s" (small), "m" (medium), "l" (large)
+- `breast_penis_size`: "s", "m", "l", "h", "x"
+- `skin_tone`: "l" (light), "m" (medium), "d" (dark)
 
-#### Атрибуты изображения (imgphys)
-- `hair_color`: цвет волос - `"l"` (светлый), `"m"` (средний), `"d"` (темный)
-- `hair_length`: длина волос - `"b"` (лысый), `"s"` (короткие), `"m"` (средние), `"l"` (длинные)
-- `eye_color`: цвет глаз - `"l"` (светлый), `"m"` (средний), `"d"` (темный)
+#### Image attributes (imgphys)
+- `hair_color`: "l" (light), "m" (medium), "d" (dark)
+- `hair_length`: "b" (bald), "s" (short), "m" (medium), "l" (long)
+- `eye_color`: "l" (light), "m" (medium), "d" (dark)
 
-## Типы поз
+## Pose types
 
-Генератор создает следующие изображения:
+The generator creates the following images:
 
-### Базовые позы (для всех)
-- `head` - портрет/голова (120x160px)
-- `cas` - повседневная одежда
-- `uw` - нижнее белье
-- `nude` - обнаженный
+### Base poses (for all)
+- `head` - head/portrait (120x160px)
+- `cas` - casual
+- `uw` - underwear
+- `nude` - nude
 
-### Дополнительные позы
-- `bc` - деловая повседневная одежда
-- `biz` - деловой костюм
-- `fun` - спортивная/домашняя одежда
+### Additional poses
+- `bc` - business casual
+- `biz` - business suit
+- `fun` - workout/home clothes
 
-### Только для женщин
-- `tl` - топлесс
-- `ss` - купальник
-- `s1` - стриптизерский наряд 1
-- `s2` - стриптизерский наряд 2 (более откровенный)
-- `s3` - стриптизерский наряд 3 (очень откровенный)
-- `preg` - беременная
+### Female-only
+- `tl` - topless
+- `ss` - swimsuit
+- `s1` - stripper outfit 1
+- `s2` - stripper outfit 2 (more revealing)
+- `s3` - stripper outfit 3 (very revealing)
+- `preg` - pregnant
 
-## Структура результата
+## Output structure
 
-Все персонажи одной сессии генерируются в одну папку с временным именем:
+All characters of a single run are saved under a timestamped session:
 
 ```
 generated_characters/
-└── session_20250909_173538/               # Папка сессии (дата_время)
-    ├── custom-26329-f2w-mnmml-llm-u-head.png    (голова молодой белой женщины)
-    ├── custom-26329-z0-cas.png                  (повседневная, скромная)
-    ├── custom-26329-z1-cas.png                  (повседневная, слегка откровенная)
-    ├── custom-26329-z2-cas.png                  (повседневная, умеренно откровенная)
-    ├── custom-26329-z3-uw.png                   (нижнее белье)
-    ├── custom-26329-z9-nude.png                 (обнаженная)
-    ├── custom-43829-m4a-mfmml-dsd-u-head.png    (голова зрелого азиатского мужчины)
-    ├── custom-43829-z0-cas.png                  (повседневная одежда)
-    └── ... (все персонажи сессии)
+└── session_20250909_173538/
+    ├── custom-26329-f2w-mnmml-llm-u-head.png
+    ├── custom-26329-z0-cas.png
+    ├── custom-26329-z1-cas.png
+    ├── custom-26329-z2-cas.png
+    ├── custom-26329-z3-uw.png
+    ├── custom-26329-z9-nude.png
+    ├── custom-43829-m4a-mfmml-dsd-u-head.png
+    ├── custom-43829-z0-cas.png
+    └── ...
 ```
 
-### Система ID персонажей:
-- **Женщины**: случайные ID 00000-49999 (например: 26329, 08471, 35892)
-- **Мужчины**: случайные ID 10000-19999 (например: 13947, 16582, 18203)
-- **Генерация**: на основе времени + случайность для уникальности
+### Character ID system
+- Females: random IDs 00000-49999 (e.g., 26329)
+- Males: random IDs 10000-19999 (e.g., 13947)
+- Generation: time-based with randomness
 
-### Новые возможности (v1.2+):
-- **Возрастные группы**: 0-5 (включая группу 0 для персонажей 16+ лет)
-  - `0`: 16+ лет - подростки (teen, 18 years old, very young, petite)
-  - `1-5`: остальные возрасты как ранее
-- **Размеры груди**: s/m/l/h/x (добавлены маленькие и экстра большие)
-  - `s`: маленькая грудь (small breasts, tiny chest, petite bust)
-  - `x`: экстра большая грудь (extra huge breasts, gigantic bust)
+## Filename format
 
-## Формат имен файлов
+The generator follows SCW naming rules:
 
-Генератор создает файлы в соответствии с требованиями SCW:
-
-### Для головы
+### Head
 ```
 modkey-id-reqphys-optphys-imgphys-special-head.png
 custom-26329-f2w-mnmml-llm-u-head.png
 ```
 
-### Для остальных поз (с множественными вариантами)
+### Other poses (with variants)
 ```
 modkey-id-reveal-pose.png
-custom-26329-z0-cas.png    # reveal=0 (скромная)
-custom-26329-z1-cas.png    # reveal=1 (слегка откровенная)
-custom-26329-z9-nude.png   # reveal=9 (обнаженная)
+custom-26329-z0-cas.png    # reveal=0
+custom-26329-z1-cas.png    # reveal=1
+custom-26329-z9-nude.png   # reveal=9
 ```
 
-## Интеграция в игру
+## Troubleshooting
 
-1. Скопируйте сгенерированные изображения в директорию персонажей игры
-2. Добавьте ваш `modkey` в файл конфигурации игры:
-   ```
-   image_modules string scw,custom
-   ```
+### WebUI not responding
+- Ensure Stable Diffusion WebUI is running with `--api`
+- Check that WebUI is reachable at http://localhost:7860
 
-## Решение проблем
+### Generation errors
+- Check WebUI logs for errors
+- Ensure you have enough VRAM
+- Try reducing steps in config
 
-### WebUI не отвечает
-- Убедитесь что Stable Diffusion WebUI запущен с флагом `--api`
-- Проверьте что WebUI доступен по адресу http://localhost:7860
+### Poor background removal
+- `rembg` may not be perfect for all images
+- Manually edit if needed
 
-### Ошибки генерации
-- Проверьте журнал WebUI на предмет ошибок
-- Убедитесь что у вас достаточно VRAM для генерации изображений
-- Попробуйте уменьшить количество шагов в конфигурации
+## License
 
-### Плохое качество удаления фона
-- Библиотека `rembg` может работать не идеально на всех изображениях
-- При необходимости отредактируйте изображения вручную
+This project is provided for use with Strip Club Wars 2.
 
-## Лицензия
+## Contributing
 
-Этот проект создан для использования с игрой Strip Club Wars 2.
-
-## Вклад
-
-Если у вас есть предложения по улучшению или вы нашли баги, создавайте issues или pull requests.
+Found issues or have suggestions? Please open issues or pull requests.
