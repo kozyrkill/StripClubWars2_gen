@@ -23,8 +23,10 @@ share/python-wheels/
 .installed.cfg
 *.egg
 
-# Сгенерированные изображения и медиа файлы
+# Сгенерированные изображения и медиа файлы  
 generated_characters/
+*/
+# Все форматы изображений
 *.png
 *.jpg
 *.jpeg
