@@ -145,32 +145,26 @@ python scw_image_generator.py --test --output-dir ./my_characters
 
 ## Структура результата
 
-Каждый персонаж генерируется в отдельную папку с понятным именем и умным префиксом:
+Все персонажи одной сессии генерируются в одну папку с временным именем:
 
 ```
 generated_characters/
-├── female_young_caucasian_01000/           # Молодая белая женщина
-│   ├── fyc_01000-01000-f2w-mnmml-llm-u-head.png   (голова)
-│   ├── fyc_01000-01000-z0-cas.png                  (повседневная, скромная)
-│   ├── fyc_01000-01000-z1-cas.png                  (повседневная, слегка откровенная)
-│   ├── fyc_01000-01000-z2-cas.png                  (повседневная, умеренно откровенная)
-│   ├── fyc_01000-01000-z3-uw.png                   (нижнее белье)
-│   ├── fyc_01000-01000-z9-nude.png                 (обнаженная)
-│   └── ... (19 изображений всего)
-├── male_mature_asian_10002/                # Зрелый азиатский мужчина  
-│   ├── mma_10002-10002-m4a-mfmml-dsd-u-head.png
-│   ├── mma_10002-10002-z0-cas.png
-│   └── ... (12 изображений)
-└── female_adult_hispanic_00005/            # Взрослая латиноамериканка
-    ├── fah_00005-00005-f3h-mnmml-dmd-u-head.png  
-    └── ...
+└── session_20250909_173538/               # Папка сессии (дата_время)
+    ├── custom-26329-f2w-mnmml-llm-u-head.png    (голова молодой белой женщины)
+    ├── custom-26329-z0-cas.png                  (повседневная, скромная)
+    ├── custom-26329-z1-cas.png                  (повседневная, слегка откровенная)
+    ├── custom-26329-z2-cas.png                  (повседневная, умеренно откровенная)
+    ├── custom-26329-z3-uw.png                   (нижнее белье)
+    ├── custom-26329-z9-nude.png                 (обнаженная)
+    ├── custom-43829-m4a-mfmml-dsd-u-head.png    (голова зрелого азиатского мужчины)
+    ├── custom-43829-z0-cas.png                  (повседневная одежда)
+    └── ... (все персонажи сессии)
 ```
 
-### Умные префиксы изображений:
-- `fyc_01000` = **F**emale **Y**oung **C**aucasian + ID
-- `mma_10002` = **M**ale **M**ature **A**sian + ID  
-- `fah_00005` = **F**emale **A**dult **H**ispanic + ID
-- `msm_10004` = **M**ale **S**enior **M**iddleEastern + ID
+### Система ID персонажей:
+- **Женщины**: случайные ID 00000-49999 (например: 26329, 08471, 35892)
+- **Мужчины**: случайные ID 10000-19999 (например: 13947, 16582, 18203)
+- **Генерация**: на основе времени + случайность для уникальности
 
 ## Формат имен файлов
 
@@ -178,16 +172,16 @@ generated_characters/
 
 ### Для головы
 ```
-prefix-id-reqphys-optphys-imgphys-special-head.png
-fyc_01000-01000-f2w-mnmml-llm-u-head.png
+modkey-id-reqphys-optphys-imgphys-special-head.png
+custom-26329-f2w-mnmml-llm-u-head.png
 ```
 
 ### Для остальных поз (с множественными вариантами)
 ```
-prefix-id-reveal-pose.png
-fyc_01000-01000-z0-cas.png    # reveal=0 (скромная)
-fyc_01000-01000-z1-cas.png    # reveal=1 (слегка откровенная)
-fyc_01000-01000-z9-nude.png   # reveal=9 (обнаженная)
+modkey-id-reveal-pose.png
+custom-26329-z0-cas.png    # reveal=0 (скромная)
+custom-26329-z1-cas.png    # reveal=1 (слегка откровенная)
+custom-26329-z9-nude.png   # reveal=9 (обнаженная)
 ```
 
 ## Интеграция в игру
