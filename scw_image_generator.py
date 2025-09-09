@@ -224,19 +224,11 @@ class SCWImageGenerator:
         
         return char_id
     
-    def generate_character_seed(self, char_id: str, pose: str = None, variant: int = 0) -> int:
-        """Генерирует seed для персонажа с учетом позы и варианта"""
-        # Используем хеш ID + поза + вариант для получения уникального seed
+    def generate_character_seed(self, char_id: str) -> int:
+        """Генерирует постоянный seed для персонажа на основе его ID"""
+        # Используем хеш ID для получения постоянного seed
         import hashlib
-        
-        # Базовый ключ: modkey + char_id + pose + variant
-        seed_key = f"{self.modkey}-{char_id}"
-        if pose:
-            seed_key += f"-{pose}"
-        if variant > 0:
-            seed_key += f"-v{variant}"
-            
-        hash_obj = hashlib.md5(seed_key.encode())
+        hash_obj = hashlib.md5(f"{self.modkey}-{char_id}".encode())
         # Берем первые 8 байт хеша и преобразуем в int (максимум для seed в SD)
         seed = int(hash_obj.hexdigest()[:8], 16) % (2**31 - 1)  # Ограничиваем 31 битом
         return seed
@@ -325,27 +317,61 @@ class SCWImageGenerator:
         
         return ", ".join(filter(None, prompt_parts))  # фильтруем пустые строки
     
-    def build_pose_prompt(self, base_prompt: str, pose: str, reveal_level: int = 0) -> str:
-        """Создает промпт для конкретной позы с учетом уровня откровенности"""
-        pose_prompt = POSE_PROMPTS.get(pose, "")
+    def get_clothing_description(self, pose: str, reveal_level: int) -> str:
+        """Возвращает детальное описание одежды для позы и уровня откровенности"""
         
-        # Модификация промпта в зависимости от уровня откровенности
-        reveal_modifiers = {
-            0: "modest, conservative, fully clothed",
-            1: "slightly revealing, tasteful",
-            2: "moderately revealing, stylish", 
-            3: "revealing, sexy",
-            4: "very revealing, provocative",
-            5: "highly revealing, seductive",
-            6: "extremely revealing, erotic",
-            7: "barely covered, explicit",
-            8: "almost nude, very explicit",
-            9: "nude, artistic nudity",
-            10: "nude, sensual",
-            11: "nude, very explicit"
+        # Детальные варианты одежды для разных поз и уровней
+        clothing_variants = {
+            "cas": {
+                0: "blue jeans and white t-shirt, sneakers, casual everyday outfit",
+                1: "fitted dark jeans and tight colorful top, stylish casual",
+                2: "short denim skirt and crop top, trendy casual showing some skin",
+            },
+            "bc": {
+                0: "white business blouse and dark pants, conservative professional attire",
+                1: "fitted gray blazer and pencil skirt, professional but elegant",
+                2: "partially unbuttoned blouse and tight skirt, business casual revealing",
+            },
+            "biz": {
+                0: "dark business suit with jacket and pants, formal conservative wear",
+                1: "fitted navy suit with short skirt, professional attractive look",
+                2: "open suit jacket with tight blouse and mini skirt, formal revealing",
+            },
+            "uw": {
+                3: "matching white cotton bra and panties, classic lingerie set",
+                4: "black lacy bra and panties, elegant semi-transparent underwear", 
+                5: "red silk lingerie set, barely covering, seductive underwear",
+            },
+            "ss": {
+                2: "blue one-piece swimsuit, modest athletic swimming attire",
+                3: "colorful bikini top and bottom, classic two-piece beachwear",
+                4: "tiny string bikini, minimal coverage, revealing swimwear",
+            },
         }
         
-        reveal_modifier = reveal_modifiers.get(reveal_level, "")
+        # Получаем конкретное описание одежды
+        pose_clothing = clothing_variants.get(pose, {})
+        clothing_desc = pose_clothing.get(reveal_level, "")
+        
+        # Если нет конкретного варианта, используем общее описание
+        if not clothing_desc:
+            general_clothing = {
+                0: "conservative modest clothing, fully covered",
+                1: "slightly revealing casual wear, tasteful and stylish", 
+                2: "moderately revealing fashionable clothes, showing some skin",
+                3: "revealing sexy clothing, attractive and appealing",
+                4: "very revealing minimal clothing, provocative outfit",
+                5: "extremely revealing clothing, barely clothed, seductive",
+                9: "nude, completely naked, artistic nudity"
+            }
+            clothing_desc = general_clothing.get(reveal_level, "appropriate clothing")
+            
+        return clothing_desc
+    
+    def build_pose_prompt(self, base_prompt: str, pose: str, reveal_level: int = 0) -> str:
+        """Создает промпт для конкретной позы с детальным описанием одежды"""
+        pose_base = POSE_PROMPTS.get(pose, "")
+        clothing_desc = self.get_clothing_description(pose, reveal_level)
         
         # Базовые настройки качества
         quality_prompt = "masterpiece, best quality, high resolution, detailed, realistic, photorealistic"
@@ -353,8 +379,8 @@ class SCWImageGenerator:
         # Настройки освещения и стиля
         style_prompt = "soft lighting, professional photography, clean background"
         
-        # Компонуем итоговый промпт
-        full_prompt = f"{quality_prompt}, {base_prompt}, {pose_prompt}, {reveal_modifier}, {style_prompt}"
+        # Компонуем итоговый промпт с детальным описанием одежды
+        full_prompt = f"{quality_prompt}, {base_prompt}, {pose_base}, {clothing_desc}, {style_prompt}"
         
         return full_prompt
     
@@ -446,11 +472,12 @@ class SCWImageGenerator:
                 poses.extend(female_poses[:3])  # Добавляем первые 3 женские позы
         
         char_id = self.generate_character_id(character)
+        character_seed = self.generate_character_seed(char_id)
         base_prompt = self.build_base_prompt(character)
         
-        print(f"Генерирую персонажа {char_id}")
+        print(f"Генерирую персонажа {char_id} (seed: {character_seed})")
         print(f"  Атрибуты: {character.gender}, возраст {character.age_group}, {character.ethnicity}")
-        print(f"  Seed: уникальный для каждой позы и варианта")
+        print(f"  Разнообразие через разную одежду по уровням откровенности")
         
         generated_files = {}
         
@@ -468,16 +495,13 @@ class SCWImageGenerator:
             for variant_idx, reveal_level in enumerate(reveal_variants):
                 print(f"    Вариант {variant_idx + 1}/{len(reveal_variants)} (уровень откровенности: {reveal_level})")
                 
-                # Генерируем уникальный seed для этой позы и варианта
-                pose_seed = self.generate_character_seed(char_id, pose, variant_idx)
-                print(f"      Seed: {pose_seed}")
-                
                 # Создаем промпт для позы с учетом уровня откровенности
                 full_prompt = self.build_pose_prompt(base_prompt, pose, reveal_level)
+                print(f"      Одежда: {self.get_clothing_description(pose, reveal_level)}")
                 
-                # Генерируем изображение с уникальным seed для позы
+                # Генерируем изображение с постоянным seed персонажа
                 is_headshot = pose == "head"
-                image = self.call_stable_diffusion_api(full_prompt, is_headshot, pose_seed)
+                image = self.call_stable_diffusion_api(full_prompt, is_headshot, character_seed)
                 
                 if image:
                     # Удаляем фон (кроме головы, для неё это менее критично)
