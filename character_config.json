@@ -69,6 +69,34 @@
       "hair_color": "d",
       "hair_length": "m",
       "eye_color": "d"
+    },
+    {
+      "name": "teen_petite_girl",
+      "gender": "f",
+      "age_group": 0,
+      "ethnicity": "w",
+      "height": "s",
+      "body_shape": "s",
+      "hips_size": "s",
+      "breast_penis_size": "s",
+      "skin_tone": "l",
+      "hair_color": "l",
+      "hair_length": "l",
+      "eye_color": "l"
+    },
+    {
+      "name": "busty_mature_woman",
+      "gender": "f",
+      "age_group": 3,
+      "ethnicity": "b",
+      "height": "m",
+      "body_shape": "c",
+      "hips_size": "l",
+      "breast_penis_size": "x",
+      "skin_tone": "m",
+      "hair_color": "d",
+      "hair_length": "m",
+      "eye_color": "d"
     }
   ],
   

@@ -32,14 +32,14 @@ class CharacterAttributes:
     """Атрибуты персонажа для генерации"""
     # Обязательные атрибуты (reqphys)
     gender: str  # m/f
-    age_group: int  # 1-5 (18-24, 22-31, 28-42, 38-51, 48+)
+    age_group: int  # 0-5 (16-18, 18-24, 22-31, 28-42, 38-51, 48+)
     ethnicity: str  # w/b/h/a/r (white, black, hispanic, asian, middle-eastern)
     
     # Опциональные атрибуты (optphys)
     height: str = "m"  # t/m/s (tall, medium, short)
     body_shape: str = "n"  # s/n/c/f (slim, normal, curvy, fit)
     hips_size: str = "m"  # s/m/l (small, medium, large)
-    breast_penis_size: str = "m"  # s/m/l/h (small, medium, large, huge)
+    breast_penis_size: str = "m"  # s/m/l/h/x (tiny, small, medium, large, huge, extra-huge)
     skin_tone: str = "l"  # l/m/d (light, medium, dark)
     
     # Атрибуты изображения (imgphys)
@@ -76,6 +76,7 @@ GENDER_PROMPTS = {
 }
 
 AGE_PROMPTS = {
+    0: "teen, 18 years old, very young, petite",
     1: "young adult, 20 years old",
     2: "young adult, 25 years old", 
     3: "adult, 35 years old",
@@ -180,15 +181,27 @@ class SCWImageGenerator:
         prompt_parts.append(HAIR_COLOR_PROMPTS[character.hair_color])
         prompt_parts.append(HAIR_LENGTH_PROMPTS[character.hair_length])
         
-        # Дополнительные характеристики
-        if character.breast_penis_size == "l":
+        # Дополнительные характеристики (размеры груди/тела)
+        if character.breast_penis_size == "s":
             if character.gender == "f":
-                prompt_parts.append("large breasts")
+                prompt_parts.append("small breasts, tiny chest, petite bust")
             else:
-                prompt_parts.append("athletic build")
+                prompt_parts.append("slim build")
+        elif character.breast_penis_size == "l":
+            if character.gender == "f":
+                prompt_parts.append("large breasts, big bust")
+            else:
+                prompt_parts.append("athletic build, muscular")
         elif character.breast_penis_size == "h":
             if character.gender == "f":
                 prompt_parts.append("huge breasts, very large bust")
+            else:
+                prompt_parts.append("very muscular, strong build")
+        elif character.breast_penis_size == "x":
+            if character.gender == "f":
+                prompt_parts.append("extra huge breasts, gigantic bust, massive boobs")
+            else:
+                prompt_parts.append("extremely muscular, bodybuilder")
         
         return ", ".join(prompt_parts)
     
@@ -402,25 +415,25 @@ class SCWImageGenerator:
         """Создает примеры персонажей для тестирования"""
         characters = []
         
-        # Молодая кавказская женщина
+        # Очень молодая белая девушка с маленькой грудью
+        characters.append(CharacterAttributes(
+            gender="f", age_group=0, ethnicity="w",
+            body_shape="s", breast_penis_size="s",
+            hair_color="l", hair_length="l", eye_color="l"
+        ))
+        
+        # Молодая женщина с очень большой грудью  
         characters.append(CharacterAttributes(
             gender="f", age_group=2, ethnicity="w",
-            body_shape="n", breast_penis_size="m",
-            hair_color="l", hair_length="l", eye_color="m"
+            body_shape="c", breast_penis_size="x",
+            hair_color="m", hair_length="m", eye_color="m"
         ))
         
-        # Зрелый азиатский мужчина
+        # Зрелый азиатский мужчина, мускулистый
         characters.append(CharacterAttributes(
             gender="m", age_group=4, ethnicity="a",
-            body_shape="f", breast_penis_size="m",
+            body_shape="f", breast_penis_size="l",
             hair_color="d", hair_length="s", eye_color="d"
-        ))
-        
-        # Молодая афроамериканка
-        characters.append(CharacterAttributes(
-            gender="f", age_group=1, ethnicity="b",
-            body_shape="c", breast_penis_size="l",
-            hair_color="d", hair_length="m", eye_color="d"
         ))
         
         return characters
