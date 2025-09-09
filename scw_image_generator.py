@@ -431,22 +431,27 @@ class SCWImageGenerator:
         pose_base = POSE_PROMPTS.get(pose, "")
         clothing_desc = self.get_clothing_description(pose, reveal_level)
         
+        # КРИТИЧЕСКИ ВАЖНО: full body промпт в самом начале для максимального приоритета
+        if pose != "head":
+            priority_full_body = ("full body, complete figure, head to toe, legs visible, feet visible, "
+                                 "whole person visible, entire body in frame")
+        else:
+            priority_full_body = ""
+        
         # Базовые настройки качества
         quality_prompt = "masterpiece, best quality, high resolution, detailed, realistic, photorealistic"
         
-        # Усиленные промпты для полного роста (только для не-головы)
+        # Дополнительные усиления для полного роста
         if pose != "head":
-            full_body_emphasis = ("full body shot, complete figure visible, whole person visible, "
-                                "from head to feet, legs and feet visible, no cropping, "
-                                "entire body in frame, standing full height")
+            additional_emphasis = ("no cropping, standing full height, complete body shot")
         else:
-            full_body_emphasis = ""
+            additional_emphasis = ""
         
         # Настройки освещения и стиля
         style_prompt = "soft lighting, professional photography, clean background"
         
-        # Компонуем итоговый промпт с усиленным акцентом на полный рост
-        prompt_parts = [quality_prompt, base_prompt, pose_base, clothing_desc, full_body_emphasis, style_prompt]
+        # Компонуем промпт: ПОЛНЫЙ РОСТ ПЕРВЫМ!
+        prompt_parts = [priority_full_body, quality_prompt, base_prompt, pose_base, clothing_desc, additional_emphasis, style_prompt]
         full_prompt = ", ".join(filter(None, prompt_parts))
         
         return full_prompt
