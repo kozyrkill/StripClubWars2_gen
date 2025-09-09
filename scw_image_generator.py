@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import time
 import random
+import datetime
 
 # Конфигурация Stable Diffusion WebUI
 WEBUI_URL = "http://localhost:7860"
@@ -131,9 +132,14 @@ class SCWImageGenerator:
     
     def __init__(self, output_dir: str = "generated_characters", modkey: str = "custom"):
         self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(exist_ok=True)
         self.modkey = modkey
-        self.current_id = 1000  # Начинаем с ID 1000 для пользовательских персонажей
+        
+        # Создаем папку для этой сессии на основе времени
+        session_timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.session_dir = self.output_dir / f"session_{session_timestamp}"
+        self.session_dir.mkdir(parents=True, exist_ok=True)
+        
+        print(f"📁 Сессия: {self.session_dir.name}")
         
     def check_webui_connection(self) -> bool:
         """Проверяет соединение с Stable Diffusion WebUI"""
@@ -144,44 +150,19 @@ class SCWImageGenerator:
             return False
     
     def generate_character_id(self, character: CharacterAttributes) -> str:
-        """Генерирует уникальный ID для персонажа"""
+        """Генерирует случайный ID на основе времени"""
+        # Используем текущее время в микросекундах для уникальности
+        timestamp = int(time.time() * 1000000)  # микросекунды
+        random_part = random.randint(100, 999)  # добавляем случайность
+        
         if character.gender == "f":
-            # Женщины начинаются с 0
-            char_id = f"{self.current_id:05d}"
+            # Женщины: берем последние 5 цифр (начинается с 0-4)
+            char_id = f"{(timestamp + random_part) % 50000:05d}"
         else:
-            # Мужчины начинаются с 1
-            char_id = f"{10000 + self.current_id:05d}"
+            # Мужчины: добавляем 10000 + последние 4 цифры
+            char_id = f"{10000 + (timestamp + random_part) % 10000:05d}"
         
-        self.current_id += 1
         return char_id
-    
-    def generate_character_folder_name(self, character: CharacterAttributes, char_id: str) -> str:
-        """Генерирует имя папки для персонажа"""
-        # Расшифровка атрибутов для понятного имени
-        gender_names = {"f": "female", "m": "male"}
-        age_names = {1: "young", 2: "young", 3: "adult", 4: "mature", 5: "senior"}
-        ethnicity_names = {
-            "w": "caucasian", "b": "african", "h": "hispanic", 
-            "a": "asian", "r": "middleeastern"
-        }
-        
-        gender_name = gender_names[character.gender]
-        age_name = age_names[character.age_group]
-        ethnicity_name = ethnicity_names[character.ethnicity]
-        
-        # Создаем имя папки
-        folder_name = f"{gender_name}_{age_name}_{ethnicity_name}_{char_id}"
-        return folder_name
-    
-    def generate_image_prefix(self, folder_name: str) -> str:
-        """Генерирует префикс для изображений на основе имени папки"""
-        # Берем первые буквы каждого слова + ID в конце
-        parts = folder_name.split('_')
-        if len(parts) >= 4:
-            prefix = ''.join([part[0] for part in parts[:3]]) + '_' + parts[-1]
-        else:
-            prefix = folder_name
-        return prefix
     
     def build_base_prompt(self, character: CharacterAttributes) -> str:
         """Создает базовый промпт для персонажа"""
@@ -300,23 +281,20 @@ class SCWImageGenerator:
             return image
     
     def generate_filename(self, character: CharacterAttributes, char_id: str, pose: str, 
-                         reveal_level: int = 0, image_prefix: str = None) -> str:
+                         reveal_level: int = 0) -> str:
         """Генерирует имя файла в соответствии с форматом SCW"""
         
-        # Используем переданный prefix или стандартный modkey
-        prefix = image_prefix or self.modkey
-        
         if pose == "head":
-            # Формат для головы: prefix-id-reqphys-optphys-imgphys-special-head.png
+            # Формат для головы: modkey-id-reqphys-optphys-imgphys-special-head.png
             reqphys = f"{character.gender}{character.age_group}{character.ethnicity}"
             optphys = f"{character.height}{character.body_shape}{character.hips_size}{character.breast_penis_size}{character.skin_tone}"
             imgphys = f"{character.hair_color}{character.hair_length}{character.eye_color}"
             special = "u"  # обычный персонаж
             
-            filename = f"{prefix}-{char_id}-{reqphys}-{optphys}-{imgphys}-{special}-head.png"
+            filename = f"{self.modkey}-{char_id}-{reqphys}-{optphys}-{imgphys}-{special}-head.png"
         else:
-            # Формат для остальных поз: prefix-id-reveal-pose.png
-            filename = f"{prefix}-{char_id}-z{reveal_level}-{pose}.png"
+            # Формат для остальных поз: modkey-id-reveal-pose.png
+            filename = f"{self.modkey}-{char_id}-z{reveal_level}-{pose}.png"
         
         return filename
     
@@ -335,16 +313,9 @@ class SCWImageGenerator:
                 poses.extend(female_poses[:3])  # Добавляем первые 3 женские позы
         
         char_id = self.generate_character_id(character)
-        folder_name = self.generate_character_folder_name(character, char_id)
-        image_prefix = self.generate_image_prefix(folder_name)
         base_prompt = self.build_base_prompt(character)
         
-        # Создаем папку для персонажа
-        character_dir = self.output_dir / folder_name
-        character_dir.mkdir(parents=True, exist_ok=True)
-        
-        print(f"Генерирую персонажа {char_id} → папка: {folder_name}")
-        print(f"Префикс изображений: {image_prefix}")
+        print(f"Генерирую персонажа {char_id} ({character.gender}, {character.age_group}, {character.ethnicity})")
         
         generated_files = {}
         
@@ -374,11 +345,11 @@ class SCWImageGenerator:
                     if not is_headshot:
                         image = self.remove_background(image)
                     
-                    # Генерируем имя файла с новым префиксом
-                    filename = self.generate_filename(character, char_id, pose, reveal_level, image_prefix)
-                    filepath = character_dir / filename
+                    # Генерируем имя файла в правильном формате SCW
+                    filename = self.generate_filename(character, char_id, pose, reveal_level)
+                    filepath = self.session_dir / filename
                     
-                    # Сохраняем изображение
+                    # Сохраняем изображение в папку сессии
                     image.save(filepath, "PNG")
                     pose_files.append(str(filepath))
                     
