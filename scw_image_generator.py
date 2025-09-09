@@ -527,31 +527,52 @@ class SCWImageGenerator:
     
     def create_sample_characters(self) -> List[CharacterAttributes]:
         """Создает примеры персонажей для тестирования"""
+        characters = []
+        
+        characters.append(CharacterAttributes(
+            gender="f", age_group=0, ethnicity="w",
+            body_shape="s", breast_penis_size="s"
+        ))
+        
+        characters.append(CharacterAttributes(
+            gender="f", age_group=2, ethnicity="w", 
+            body_shape="c", breast_penis_size="x"
+        ))
+        
+        characters.append(CharacterAttributes(
+            gender="m", age_group=4, ethnicity="a",
+            body_shape="f", breast_penis_size="l"
+        ))
+        
+        return characters
+        
+    def load_test_characters(self, test_type: str = "simple") -> List[CharacterAttributes]:
+        """Загружает тестовых персонажей из JSON файла"""
         try:
-            # Пытаемся импортировать детализированных персонажей
-            from test_characters import get_simple_test_characters
-            return get_simple_test_characters()
-        except ImportError:
-            # Fallback к простым персонажам если файл test_characters не найден
-            print("⚠️ Файл test_characters.py не найден, используем базовые персонажи")
+            with open("test_characters.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+            
+            # Выбираем нужный набор персонажей
+            if test_type == "simple":
+                character_data = data.get("simple_characters", [])
+            elif test_type == "detailed":
+                character_data = data.get("detailed_characters", [])
+            elif test_type == "extreme":
+                character_data = data.get("extreme_characters", [])
+            else:
+                character_data = data.get("simple_characters", [])
+            
             characters = []
-            
-            characters.append(CharacterAttributes(
-                gender="f", age_group=0, ethnicity="w",
-                body_shape="s", breast_penis_size="s"
-            ))
-            
-            characters.append(CharacterAttributes(
-                gender="f", age_group=2, ethnicity="w",
-                body_shape="c", breast_penis_size="x"
-            ))
-            
-            characters.append(CharacterAttributes(
-                gender="m", age_group=4, ethnicity="a",
-                body_shape="f", breast_penis_size="l"
-            ))
-            
+            for char_dict in character_data:
+                character = CharacterAttributes(**char_dict)
+                characters.append(character)
+                
             return characters
+            
+        except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
+            print(f"⚠️ Ошибка загрузки test_characters.json: {e}")
+            print("Используем базовые персонажи")
+            return self.create_sample_characters()
 
 def main():
     """Основная функция"""
@@ -591,20 +612,7 @@ def main():
     elif args.test:
         # Генерируем тестовых персонажей выбранного типа
         print(f"🧪 Режим тестирования: {args.test_type} персонажи")
-        
-        try:
-            if args.test_type == "simple":
-                from test_characters import get_simple_test_characters
-                characters = get_simple_test_characters()
-            elif args.test_type == "detailed":  
-                from test_characters import get_detailed_test_characters
-                characters = get_detailed_test_characters()
-            elif args.test_type == "extreme":
-                from test_characters import get_extreme_test_characters
-                characters = get_extreme_test_characters()
-        except ImportError:
-            print("⚠️ Файл test_characters.py не найден, используем базовые персонажи")
-            characters = generator.create_sample_characters()
+        characters = generator.load_test_characters(args.test_type)
     else:
         print("Используйте один из флагов:")
         print("  --test                    - генерировать примеры персонажей")
