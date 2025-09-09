@@ -46,6 +46,15 @@ class CharacterAttributes:
     hair_color: str = "m"  # l/m/d (light, medium, dark)
     hair_length: str = "m"  # b/s/m/l (bald, short, medium, long)
     eye_color: str = "m"  # l/m/d (light, medium, dark)
+    
+    # Дополнительные детали для консистентности
+    hair_style: str = "n"  # n/s/c/w (normal, straight, curly, wavy)
+    facial_hair: str = "n"  # n/m/b/f (none, mustache, beard, full_beard) - только для мужчин
+    makeup: str = "n"  # n/l/m/h (none, light, medium, heavy) - только для женщин
+    tattoos: str = "n"  # n/s/m/l (none, small, medium, large)
+    piercings: str = "n"  # n/e/o/m (none, ears, nose, multiple)
+    expression: str = "n"  # n/s/h/f (neutral, smile, happy, flirty)
+    clothing_style: str = "c"  # c/e/g/s (casual, elegant, gothic, sporty)
 
 # Конфигурация поз и их откровенности (с поддержкой множественных вариантов)
 POSES_CONFIG = {
@@ -128,6 +137,56 @@ POSE_PROMPTS = {
     "preg": "pregnant belly, maternity clothes, expecting"
 }
 
+# Новые словари для дополнительных деталей
+HAIR_STYLE_PROMPTS = {
+    "n": "natural hair",
+    "s": "straight hair",
+    "c": "curly hair, curls",
+    "w": "wavy hair, waves"
+}
+
+FACIAL_HAIR_PROMPTS = {
+    "n": "",  # нет растительности
+    "m": "mustache",
+    "b": "beard, facial hair",
+    "f": "full beard, heavy facial hair"
+}
+
+MAKEUP_PROMPTS = {
+    "n": "natural look, no makeup",
+    "l": "light makeup, subtle",
+    "m": "makeup, cosmetics",
+    "h": "heavy makeup, glamorous"
+}
+
+TATTOO_PROMPTS = {
+    "n": "",  # нет татуировок
+    "s": "small tattoo",
+    "m": "tattoos, body art",
+    "l": "many tattoos, heavily tattooed"
+}
+
+PIERCINGS_PROMPTS = {
+    "n": "",  # нет пирсинга
+    "e": "ear piercings",
+    "o": "nose piercing",
+    "m": "multiple piercings, facial piercings"
+}
+
+EXPRESSION_PROMPTS = {
+    "n": "neutral expression",
+    "s": "slight smile, smiling",
+    "h": "happy, joyful expression",
+    "f": "flirty, seductive expression"
+}
+
+CLOTHING_STYLE_PROMPTS = {
+    "c": "casual style",
+    "e": "elegant style, refined",
+    "g": "gothic style, dark aesthetic",
+    "s": "sporty style, athletic wear"
+}
+
 class SCWImageGenerator:
     """Генератор изображений для SCW"""
     
@@ -165,8 +224,17 @@ class SCWImageGenerator:
         
         return char_id
     
+    def generate_character_seed(self, char_id: str) -> int:
+        """Генерирует постоянный seed для персонажа на основе его ID"""
+        # Используем хеш ID для получения постоянного seed
+        import hashlib
+        hash_obj = hashlib.md5(f"{self.modkey}-{char_id}".encode())
+        # Берем первые 8 байт хеша и преобразуем в int (максимум для seed в SD)
+        seed = int(hash_obj.hexdigest()[:8], 16) % (2**31 - 1)  # Ограничиваем 31 битом
+        return seed
+    
     def build_base_prompt(self, character: CharacterAttributes) -> str:
-        """Создает базовый промпт для персонажа"""
+        """Создает базовый промпт для персонажа с всеми деталями"""
         prompt_parts = []
         
         # Основные характеристики
@@ -177,11 +245,49 @@ class SCWImageGenerator:
         # Телосложение
         prompt_parts.append(BODY_SHAPE_PROMPTS[character.body_shape])
         
-        # Волосы
+        # Волосы (основные)
         prompt_parts.append(HAIR_COLOR_PROMPTS[character.hair_color])
         prompt_parts.append(HAIR_LENGTH_PROMPTS[character.hair_length])
         
-        # Дополнительные характеристики (размеры груди/тела)
+        # Стиль волос
+        hair_style_prompt = HAIR_STYLE_PROMPTS.get(character.hair_style, "")
+        if hair_style_prompt:
+            prompt_parts.append(hair_style_prompt)
+        
+        # Глаза
+        if character.eye_color in ["l", "d"]:  # только если не стандартные
+            prompt_parts.append(f"{character.eye_color} eyes")
+        
+        # Выражение лица
+        expression_prompt = EXPRESSION_PROMPTS.get(character.expression, "")
+        if expression_prompt:
+            prompt_parts.append(expression_prompt)
+        
+        # Растительность на лице (только для мужчин)
+        if character.gender == "m" and character.facial_hair != "n":
+            facial_hair_prompt = FACIAL_HAIR_PROMPTS.get(character.facial_hair, "")
+            if facial_hair_prompt:
+                prompt_parts.append(facial_hair_prompt)
+        
+        # Макияж (только для женщин)
+        if character.gender == "f" and character.makeup != "n":
+            makeup_prompt = MAKEUP_PROMPTS.get(character.makeup, "")
+            if makeup_prompt:
+                prompt_parts.append(makeup_prompt)
+        
+        # Татуировки
+        if character.tattoos != "n":
+            tattoo_prompt = TATTOO_PROMPTS.get(character.tattoos, "")
+            if tattoo_prompt:
+                prompt_parts.append(tattoo_prompt)
+        
+        # Пирсинг
+        if character.piercings != "n":
+            piercing_prompt = PIERCINGS_PROMPTS.get(character.piercings, "")
+            if piercing_prompt:
+                prompt_parts.append(piercing_prompt)
+        
+        # Размеры груди/тела
         if character.breast_penis_size == "s":
             if character.gender == "f":
                 prompt_parts.append("small breasts, tiny chest, petite bust")
@@ -203,7 +309,13 @@ class SCWImageGenerator:
             else:
                 prompt_parts.append("extremely muscular, bodybuilder")
         
-        return ", ".join(prompt_parts)
+        # Стиль одежды (применяется к позам одежды)
+        if hasattr(character, 'clothing_style') and character.clothing_style != "c":
+            style_prompt = CLOTHING_STYLE_PROMPTS.get(character.clothing_style, "")
+            if style_prompt:
+                prompt_parts.append(style_prompt)
+        
+        return ", ".join(filter(None, prompt_parts))  # фильтруем пустые строки
     
     def build_pose_prompt(self, base_prompt: str, pose: str, reveal_level: int = 0) -> str:
         """Создает промпт для конкретной позы с учетом уровня откровенности"""
@@ -244,7 +356,7 @@ class SCWImageGenerator:
                 "extra limbs, missing limbs, watermark, signature, text, "
                 "bad hands, malformed hands, extra fingers, missing fingers")
     
-    def call_stable_diffusion_api(self, prompt: str, is_headshot: bool = False) -> Optional[Image.Image]:
+    def call_stable_diffusion_api(self, prompt: str, is_headshot: bool = False, seed: int = -1) -> Optional[Image.Image]:
         """Вызывает API Stable Diffusion WebUI для генерации изображения"""
         
         # Размеры изображения
@@ -261,7 +373,7 @@ class SCWImageGenerator:
             "sampler_name": "DPM++ 2M Karras",
             "batch_size": 1,
             "n_iter": 1,
-            "seed": -1,
+            "seed": seed,
             "restore_faces": True,
         }
         
@@ -326,9 +438,11 @@ class SCWImageGenerator:
                 poses.extend(female_poses[:3])  # Добавляем первые 3 женские позы
         
         char_id = self.generate_character_id(character)
+        character_seed = self.generate_character_seed(char_id)
         base_prompt = self.build_base_prompt(character)
         
-        print(f"Генерирую персонажа {char_id} ({character.gender}, {character.age_group}, {character.ethnicity})")
+        print(f"Генерирую персонажа {char_id} (seed: {character_seed})")
+        print(f"  Атрибуты: {character.gender}, возраст {character.age_group}, {character.ethnicity}")
         
         generated_files = {}
         
@@ -349,9 +463,9 @@ class SCWImageGenerator:
                 # Создаем промпт для позы с учетом уровня откровенности
                 full_prompt = self.build_pose_prompt(base_prompt, pose, reveal_level)
                 
-                # Генерируем изображение
+                # Генерируем изображение с постоянным seed для персонажа
                 is_headshot = pose == "head"
-                image = self.call_stable_diffusion_api(full_prompt, is_headshot)
+                image = self.call_stable_diffusion_api(full_prompt, is_headshot, character_seed)
                 
                 if image:
                     # Удаляем фон (кроме головы, для неё это менее критично)
@@ -413,30 +527,31 @@ class SCWImageGenerator:
     
     def create_sample_characters(self) -> List[CharacterAttributes]:
         """Создает примеры персонажей для тестирования"""
-        characters = []
-        
-        # Очень молодая белая девушка с маленькой грудью
-        characters.append(CharacterAttributes(
-            gender="f", age_group=0, ethnicity="w",
-            body_shape="s", breast_penis_size="s",
-            hair_color="l", hair_length="l", eye_color="l"
-        ))
-        
-        # Молодая женщина с очень большой грудью  
-        characters.append(CharacterAttributes(
-            gender="f", age_group=2, ethnicity="w",
-            body_shape="c", breast_penis_size="x",
-            hair_color="m", hair_length="m", eye_color="m"
-        ))
-        
-        # Зрелый азиатский мужчина, мускулистый
-        characters.append(CharacterAttributes(
-            gender="m", age_group=4, ethnicity="a",
-            body_shape="f", breast_penis_size="l",
-            hair_color="d", hair_length="s", eye_color="d"
-        ))
-        
-        return characters
+        try:
+            # Пытаемся импортировать детализированных персонажей
+            from test_characters import get_simple_test_characters
+            return get_simple_test_characters()
+        except ImportError:
+            # Fallback к простым персонажам если файл test_characters не найден
+            print("⚠️ Файл test_characters.py не найден, используем базовые персонажи")
+            characters = []
+            
+            characters.append(CharacterAttributes(
+                gender="f", age_group=0, ethnicity="w",
+                body_shape="s", breast_penis_size="s"
+            ))
+            
+            characters.append(CharacterAttributes(
+                gender="f", age_group=2, ethnicity="w",
+                body_shape="c", breast_penis_size="x"
+            ))
+            
+            characters.append(CharacterAttributes(
+                gender="m", age_group=4, ethnicity="a",
+                body_shape="f", breast_penis_size="l"
+            ))
+            
+            return characters
 
 def main():
     """Основная функция"""
@@ -447,6 +562,8 @@ def main():
                        help="Ключ мода для имен файлов")
     parser.add_argument("--test", action="store_true",
                        help="Генерировать тестовых персонажей")
+    parser.add_argument("--test-type", choices=["simple", "detailed", "extreme"], default="simple",
+                       help="Тип тестовых персонажей: simple/detailed/extreme")
     parser.add_argument("--config", type=str,
                        help="JSON файл с конфигурацией персонажей")
     parser.add_argument("--count", type=int, default=None,
@@ -472,8 +589,22 @@ def main():
         if args.count and args.count < len(characters):
             characters = characters[:args.count]
     elif args.test:
-        # Генерируем тестовых персонажей
-        characters = generator.create_sample_characters()
+        # Генерируем тестовых персонажей выбранного типа
+        print(f"🧪 Режим тестирования: {args.test_type} персонажи")
+        
+        try:
+            if args.test_type == "simple":
+                from test_characters import get_simple_test_characters
+                characters = get_simple_test_characters()
+            elif args.test_type == "detailed":  
+                from test_characters import get_detailed_test_characters
+                characters = get_detailed_test_characters()
+            elif args.test_type == "extreme":
+                from test_characters import get_extreme_test_characters
+                characters = get_extreme_test_characters()
+        except ImportError:
+            print("⚠️ Файл test_characters.py не найден, используем базовые персонажи")
+            characters = generator.create_sample_characters()
     else:
         print("Используйте один из флагов:")
         print("  --test                    - генерировать примеры персонажей")
