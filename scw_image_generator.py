@@ -123,18 +123,18 @@ HAIR_LENGTH_PROMPTS = {
 
 POSE_PROMPTS = {
     "head": "portrait, headshot, face focus, upper body",
-    "cas": "full body, casual clothes, jeans, t-shirt, everyday wear, standing pose",
-    "bc": "full body, business casual, nice shirt, slacks, professional but relaxed, standing pose",
-    "biz": "full body, business suit, formal wear, professional attire, standing pose",
-    "fun": "full body, workout clothes, gym wear, athletic clothing, shorts, sports bra, active pose",
-    "uw": "full body, underwear, lingerie, panties and bra, boxers, briefs, standing pose",
-    "ss": "full body, swimsuit, bikini, swimming attire, standing pose",
-    "tl": "full body, topless, bare chest, no shirt, nude from waist up, standing pose",
-    "nude": "full body, nude, naked, no clothes, full body nude, standing pose",
-    "s1": "full body, sexy outfit, revealing dress, club wear, standing pose",
-    "s2": "full body, very revealing outfit, stripper costume, barely covered, standing pose",
-    "s3": "full body, extremely revealing, almost nude, tiny outfit, standing pose",
-    "preg": "full body, pregnant belly, maternity clothes, expecting, standing pose"
+    "cas": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "bc": "full body, head to toe, legs visible, feet visible, standing pose, complete figure", 
+    "biz": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "fun": "full body, head to toe, legs visible, feet visible, active pose, complete figure",
+    "uw": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "ss": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "tl": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "nude": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "s1": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "s2": "full body, head to toe, legs visible, feet visible, standing pose, complete figure", 
+    "s3": "full body, head to toe, legs visible, feet visible, standing pose, complete figure",
+    "preg": "full body, head to toe, legs visible, feet visible, standing pose, complete figure"
 }
 
 # Новые словари для дополнительных деталей
@@ -317,13 +317,66 @@ class SCWImageGenerator:
         
         return ", ".join(filter(None, prompt_parts))  # фильтруем пустые строки
     
+    def get_footwear_description(self, pose: str, reveal_level: int) -> str:
+        """Возвращает описание обуви и чулок для позы и уровня откровенности"""
+        
+        footwear_variants = {
+            "cas": {
+                0: "white sneakers, cotton socks",
+                1: "stylish sneakers, ankle socks",
+                2: "fashionable boots, bare legs",
+            },
+            "bc": {
+                0: "black office shoes, nude pantyhose",
+                1: "high heels, sheer stockings",
+                2: "stiletto heels, lace-top stockings",
+            },
+            "biz": {
+                0: "conservative black pumps, professional pantyhose",
+                1: "elegant heels, nude stockings",
+                2: "sexy high heels, seductive stockings",
+            },
+            "uw": {
+                3: "bare feet, no socks",
+                4: "thigh-high stockings, bare feet",
+                5: "sexy stockings with garters, bare feet",
+            },
+            "ss": {
+                2: "bare feet, swimming attire",
+                3: "beach sandals or bare feet",
+                4: "bare feet, minimal swimwear",
+            },
+            "fun": {
+                0: "athletic shoes, sports socks",
+                1: "running shoes, ankle socks",
+                2: "gym shoes, athletic wear",
+            }
+        }
+        
+        pose_footwear = footwear_variants.get(pose, {})
+        footwear = pose_footwear.get(reveal_level, "")
+        
+        if not footwear:
+            general_footwear = {
+                0: "modest shoes, regular socks",
+                1: "stylish footwear",
+                2: "fashionable shoes", 
+                3: "attractive footwear",
+                4: "sexy shoes, stockings",
+                5: "seductive footwear",
+                9: "bare feet"
+            }
+            footwear = general_footwear.get(reveal_level, "appropriate footwear")
+            
+        return footwear
+
     def get_clothing_description(self, pose: str, reveal_level: int) -> str:
-        """Возвращает детальное описание одежды для позы и уровня откровенности"""
+        """Возвращает полное описание одежды включая обувь для позы и уровня откровенности"""
         
         # Детальные варианты одежды для разных поз и уровней
         clothing_variants = {
             "cas": {
-                0: "blue jeans and white t-shirt, sneakers, casual everyday outfit",
+                0: "blue jeans and white t-shirt, casual everyday outfit",
                 1: "fitted dark jeans and tight colorful top, stylish casual",
                 2: "short denim skirt and crop top, trendy casual showing some skin",
             },
@@ -349,11 +402,14 @@ class SCWImageGenerator:
             },
         }
         
-        # Получаем конкретное описание одежды
+        # Получаем описание одежды
         pose_clothing = clothing_variants.get(pose, {})
         clothing_desc = pose_clothing.get(reveal_level, "")
         
-        # Если нет конкретного варианта, используем общее описание
+        # Получаем описание обуви
+        footwear_desc = self.get_footwear_description(pose, reveal_level)
+        
+        # Если нет конкретного варианта одежды, используем общее описание
         if not clothing_desc:
             general_clothing = {
                 0: "conservative modest clothing, fully covered",
@@ -365,8 +421,10 @@ class SCWImageGenerator:
                 9: "nude, completely naked, artistic nudity"
             }
             clothing_desc = general_clothing.get(reveal_level, "appropriate clothing")
-            
-        return clothing_desc
+        
+        # Комбинируем одежду и обувь
+        full_description = f"{clothing_desc}, {footwear_desc}"
+        return full_description
     
     def build_pose_prompt(self, base_prompt: str, pose: str, reveal_level: int = 0) -> str:
         """Создает промпт для конкретной позы с детальным описанием одежды"""
