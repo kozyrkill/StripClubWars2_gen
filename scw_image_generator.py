@@ -434,19 +434,30 @@ class SCWImageGenerator:
         # Базовые настройки качества
         quality_prompt = "masterpiece, best quality, high resolution, detailed, realistic, photorealistic"
         
+        # Усиленные промпты для полного роста (только для не-головы)
+        if pose != "head":
+            full_body_emphasis = ("full body shot, complete figure visible, whole person visible, "
+                                "from head to feet, legs and feet visible, no cropping, "
+                                "entire body in frame, standing full height")
+        else:
+            full_body_emphasis = ""
+        
         # Настройки освещения и стиля
         style_prompt = "soft lighting, professional photography, clean background"
         
-        # Компонуем итоговый промпт с детальным описанием одежды
-        full_prompt = f"{quality_prompt}, {base_prompt}, {pose_base}, {clothing_desc}, {style_prompt}"
+        # Компонуем итоговый промпт с усиленным акцентом на полный рост
+        prompt_parts = [quality_prompt, base_prompt, pose_base, clothing_desc, full_body_emphasis, style_prompt]
+        full_prompt = ", ".join(filter(None, prompt_parts))
         
         return full_prompt
     
     def generate_negative_prompt(self) -> str:
-        """Создает негативный промпт"""
+        """Создает негативный промпт с акцентом против обрезки"""
         return ("low quality, blurry, distorted, deformed, ugly, bad anatomy, "
                 "extra limbs, missing limbs, watermark, signature, text, "
-                "bad hands, malformed hands, extra fingers, missing fingers")
+                "bad hands, malformed hands, extra fingers, missing fingers, "
+                "cropped, cut off, incomplete body, missing legs, missing feet, "
+                "half body, bust shot, torso only, upper body only, portrait crop")
     
     def call_stable_diffusion_api(self, prompt: str, is_headshot: bool = False, seed: int = -1) -> Optional[Image.Image]:
         """Вызывает API Stable Diffusion WebUI для генерации изображения"""
@@ -555,7 +566,14 @@ class SCWImageGenerator:
                 
                 # Создаем промпт для позы с учетом уровня откровенности
                 full_prompt = self.build_pose_prompt(base_prompt, pose, reveal_level)
-                print(f"      Одежда: {self.get_clothing_description(pose, reveal_level)}")
+                clothing_desc = self.get_clothing_description(pose, reveal_level)
+                print(f"      Одежда: {clothing_desc}")
+                
+                # Выводим полный промпт в консоль
+                print(f"      📝 ПОЛНЫЙ ПРОМПТ:")
+                print(f"         {full_prompt}")
+                print(f"      📝 НЕГАТИВНЫЙ ПРОМПТ:")
+                print(f"         {self.generate_negative_prompt()}")
                 
                 # Генерируем изображение с постоянным seed персонажа
                 is_headshot = pose == "head"
