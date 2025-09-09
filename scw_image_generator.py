@@ -46,26 +46,26 @@ class CharacterAttributes:
     hair_length: str = "m"  # b/s/m/l (bald, short, medium, long)
     eye_color: str = "m"  # l/m/d (light, medium, dark)
 
-# Конфигурация поз и их откровенности
+# Конфигурация поз и их откровенности (с поддержкой множественных вариантов)
 POSES_CONFIG = {
     # Базовые позы для всех персонажей
-    "head": {"reveal": 0, "required": True, "description": "headshot"},
-    "cas": {"reveal": 0, "required": True, "description": "casual clothes"},
-    "uw": {"reveal": 3, "required": True, "description": "underwear"},
-    "nude": {"reveal": 9, "required": True, "description": "nude"},
+    "head": {"reveal_variants": [0], "required": True, "description": "headshot"},
+    "cas": {"reveal_variants": [0, 1, 2], "required": True, "description": "casual clothes"},
+    "uw": {"reveal_variants": [3, 4, 5], "required": True, "description": "underwear"},
+    "nude": {"reveal_variants": [9, 10, 11], "required": True, "description": "nude"},
     
     # Дополнительные позы
-    "bc": {"reveal": 0, "required": False, "description": "business casual"},
-    "biz": {"reveal": 0, "required": False, "description": "business suit"},
-    "fun": {"reveal": 0, "required": False, "description": "fun/workout clothes"},
+    "bc": {"reveal_variants": [0, 1], "required": False, "description": "business casual"},
+    "biz": {"reveal_variants": [0, 1], "required": False, "description": "business suit"},
+    "fun": {"reveal_variants": [0, 1, 2], "required": False, "description": "fun/workout clothes"},
     
     # Только для женщин
-    "tl": {"reveal": 6, "required": False, "description": "topless", "female_only": True},
-    "ss": {"reveal": 2, "required": False, "description": "swimsuit", "female_only": True},
-    "s1": {"reveal": 1, "required": False, "description": "stripper outfit 1", "female_only": True},
-    "s2": {"reveal": 3, "required": False, "description": "stripper outfit 2", "female_only": True},
-    "s3": {"reveal": 5, "required": False, "description": "stripper outfit 3", "female_only": True},
-    "preg": {"reveal": 1, "required": False, "description": "pregnant", "female_only": True},
+    "tl": {"reveal_variants": [6, 7, 8], "required": False, "description": "topless", "female_only": True},
+    "ss": {"reveal_variants": [2, 3, 4], "required": False, "description": "swimsuit", "female_only": True},
+    "s1": {"reveal_variants": [1, 2, 3], "required": False, "description": "stripper outfit 1", "female_only": True},
+    "s2": {"reveal_variants": [3, 4, 5], "required": False, "description": "stripper outfit 2", "female_only": True},
+    "s3": {"reveal_variants": [5, 6, 7], "required": False, "description": "stripper outfit 3", "female_only": True},
+    "preg": {"reveal_variants": [1, 3, 6], "required": False, "description": "pregnant", "female_only": True},
 }
 
 # Словари для перевода атрибутов в промпты
@@ -183,9 +183,27 @@ class SCWImageGenerator:
         
         return ", ".join(prompt_parts)
     
-    def build_pose_prompt(self, base_prompt: str, pose: str) -> str:
-        """Создает промпт для конкретной позы"""
+    def build_pose_prompt(self, base_prompt: str, pose: str, reveal_level: int = 0) -> str:
+        """Создает промпт для конкретной позы с учетом уровня откровенности"""
         pose_prompt = POSE_PROMPTS.get(pose, "")
+        
+        # Модификация промпта в зависимости от уровня откровенности
+        reveal_modifiers = {
+            0: "modest, conservative, fully clothed",
+            1: "slightly revealing, tasteful",
+            2: "moderately revealing, stylish", 
+            3: "revealing, sexy",
+            4: "very revealing, provocative",
+            5: "highly revealing, seductive",
+            6: "extremely revealing, erotic",
+            7: "barely covered, explicit",
+            8: "almost nude, very explicit",
+            9: "nude, artistic nudity",
+            10: "nude, sensual",
+            11: "nude, very explicit"
+        }
+        
+        reveal_modifier = reveal_modifiers.get(reveal_level, "")
         
         # Базовые настройки качества
         quality_prompt = "masterpiece, best quality, high resolution, detailed, realistic, photorealistic"
@@ -193,7 +211,8 @@ class SCWImageGenerator:
         # Настройки освещения и стиля
         style_prompt = "soft lighting, professional photography, clean background"
         
-        full_prompt = f"{quality_prompt}, {base_prompt}, {pose_prompt}, {style_prompt}"
+        # Компонуем итоговый промпт
+        full_prompt = f"{quality_prompt}, {base_prompt}, {pose_prompt}, {reveal_modifier}, {style_prompt}"
         
         return full_prompt
     
@@ -252,7 +271,7 @@ class SCWImageGenerator:
             # Возвращаем оригинальное изображение в случае ошибки
             return image
     
-    def generate_filename(self, character: CharacterAttributes, char_id: str, pose: str) -> str:
+    def generate_filename(self, character: CharacterAttributes, char_id: str, pose: str, reveal_level: int = 0) -> str:
         """Генерирует имя файла в соответствии с форматом SCW"""
         
         if pose == "head":
@@ -265,13 +284,12 @@ class SCWImageGenerator:
             filename = f"{self.modkey}-{char_id}-{reqphys}-{optphys}-{imgphys}-{special}-head.png"
         else:
             # Формат для остальных поз: modkey-id-reveal-pose.png
-            reveal = POSES_CONFIG[pose]["reveal"]
-            filename = f"{self.modkey}-{char_id}-z{reveal}-{pose}.png"
+            filename = f"{self.modkey}-{char_id}-z{reveal_level}-{pose}.png"
         
         return filename
     
     def generate_character_images(self, character: CharacterAttributes, poses: List[str] = None) -> Dict[str, str]:
-        """Генерирует все изображения для персонажа"""
+        """Генерирует все изображения для персонажа с множественными вариантами"""
         
         if poses is None:
             # Генерируем все обязательные позы
@@ -298,32 +316,45 @@ class SCWImageGenerator:
                 
             print(f"  Генерирую позу: {pose}")
             
-            # Создаем промпт для позы
-            full_prompt = self.build_pose_prompt(base_prompt, pose)
+            # Получаем варианты уровней откровенности для этой позы
+            reveal_variants = POSES_CONFIG[pose].get("reveal_variants", [0])
+            pose_files = []
             
-            # Генерируем изображение
-            is_headshot = pose == "head"
-            image = self.call_stable_diffusion_api(full_prompt, is_headshot)
+            for variant_idx, reveal_level in enumerate(reveal_variants):
+                print(f"    Вариант {variant_idx + 1}/3 (уровень откровенности: {reveal_level})")
+                
+                # Создаем промпт для позы с учетом уровня откровенности
+                full_prompt = self.build_pose_prompt(base_prompt, pose, reveal_level)
+                
+                # Генерируем изображение
+                is_headshot = pose == "head"
+                image = self.call_stable_diffusion_api(full_prompt, is_headshot)
+                
+                if image:
+                    # Удаляем фон (кроме головы, для неё это менее критично)
+                    if not is_headshot:
+                        image = self.remove_background(image)
+                    
+                    # Генерируем имя файла с учетом уровня откровенности
+                    filename = self.generate_filename(character, char_id, pose, reveal_level)
+                    filepath = self.output_dir / filename
+                    
+                    # Сохраняем изображение
+                    image.save(filepath, "PNG")
+                    pose_files.append(str(filepath))
+                    
+                    print(f"      Сохранено: {filename}")
+                    
+                    # Небольшая пауза между генерациями
+                    time.sleep(1)
+                else:
+                    print(f"      Ошибка генерации варианта {variant_idx + 1}")
             
-            if image:
-                # Удаляем фон (кроме головы, для неё это менее критично)
-                if not is_headshot:
-                    image = self.remove_background(image)
-                
-                # Генерируем имя файла
-                filename = self.generate_filename(character, char_id, pose)
-                filepath = self.output_dir / filename
-                
-                # Сохраняем изображение
-                image.save(filepath, "PNG")
-                generated_files[pose] = str(filepath)
-                
-                print(f"    Сохранено: {filename}")
-                
-                # Небольшая пауза между генерациями
-                time.sleep(2)
+            if pose_files:
+                generated_files[pose] = pose_files
+                print(f"    Создано {len(pose_files)} вариантов позы {pose}")
             else:
-                print(f"    Ошибка генерации позы {pose}")
+                print(f"    ❌ Не удалось создать ни одного варианта позы {pose}")
         
         return generated_files
 
@@ -435,7 +466,15 @@ def main():
             try:
                 generated_files = generator.generate_character_images(character)
                 if generated_files:
-                    print(f"✓ Сгенерировано {len(generated_files)} изображений")
+                    # Подсчитываем общее количество сгенерированных изображений
+                    total_images = 0
+                    for pose_files in generated_files.values():
+                        if isinstance(pose_files, list):
+                            total_images += len(pose_files)
+                        else:
+                            total_images += 1
+                    
+                    print(f"✓ Сгенерировано {total_images} изображений ({len(generated_files)} поз)")
                     successful += 1
                 else:
                     print("✗ Не удалось сгенерировать изображения")

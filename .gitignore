@@ -81,3 +81,6 @@ __pypackages__/
 # Local config files
 config.local.json
 local_settings.py
+
+
+Defaults
