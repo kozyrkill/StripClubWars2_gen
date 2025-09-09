@@ -123,18 +123,18 @@ HAIR_LENGTH_PROMPTS = {
 
 POSE_PROMPTS = {
     "head": "portrait, headshot, face focus, upper body",
-    "cas": "casual clothes, jeans, t-shirt, everyday wear",
-    "bc": "business casual, nice shirt, slacks, professional but relaxed",
-    "biz": "business suit, formal wear, professional attire",
-    "fun": "workout clothes, gym wear, athletic clothing, shorts, sports bra",
-    "uw": "underwear, lingerie, panties and bra, boxers, briefs",
-    "ss": "swimsuit, bikini, swimming attire",
-    "tl": "topless, bare chest, no shirt, nude from waist up",
-    "nude": "nude, naked, no clothes, full body nude",
-    "s1": "sexy outfit, revealing dress, club wear",
-    "s2": "very revealing outfit, stripper costume, barely covered",
-    "s3": "extremely revealing, almost nude, tiny outfit",
-    "preg": "pregnant belly, maternity clothes, expecting"
+    "cas": "full body, casual clothes, jeans, t-shirt, everyday wear, standing pose",
+    "bc": "full body, business casual, nice shirt, slacks, professional but relaxed, standing pose",
+    "biz": "full body, business suit, formal wear, professional attire, standing pose",
+    "fun": "full body, workout clothes, gym wear, athletic clothing, shorts, sports bra, active pose",
+    "uw": "full body, underwear, lingerie, panties and bra, boxers, briefs, standing pose",
+    "ss": "full body, swimsuit, bikini, swimming attire, standing pose",
+    "tl": "full body, topless, bare chest, no shirt, nude from waist up, standing pose",
+    "nude": "full body, nude, naked, no clothes, full body nude, standing pose",
+    "s1": "full body, sexy outfit, revealing dress, club wear, standing pose",
+    "s2": "full body, very revealing outfit, stripper costume, barely covered, standing pose",
+    "s3": "full body, extremely revealing, almost nude, tiny outfit, standing pose",
+    "preg": "full body, pregnant belly, maternity clothes, expecting, standing pose"
 }
 
 # Новые словари для дополнительных деталей
@@ -224,11 +224,19 @@ class SCWImageGenerator:
         
         return char_id
     
-    def generate_character_seed(self, char_id: str) -> int:
-        """Генерирует постоянный seed для персонажа на основе его ID"""
-        # Используем хеш ID для получения постоянного seed
+    def generate_character_seed(self, char_id: str, pose: str = None, variant: int = 0) -> int:
+        """Генерирует seed для персонажа с учетом позы и варианта"""
+        # Используем хеш ID + поза + вариант для получения уникального seed
         import hashlib
-        hash_obj = hashlib.md5(f"{self.modkey}-{char_id}".encode())
+        
+        # Базовый ключ: modkey + char_id + pose + variant
+        seed_key = f"{self.modkey}-{char_id}"
+        if pose:
+            seed_key += f"-{pose}"
+        if variant > 0:
+            seed_key += f"-v{variant}"
+            
+        hash_obj = hashlib.md5(seed_key.encode())
         # Берем первые 8 байт хеша и преобразуем в int (максимум для seed в SD)
         seed = int(hash_obj.hexdigest()[:8], 16) % (2**31 - 1)  # Ограничиваем 31 битом
         return seed
@@ -438,11 +446,11 @@ class SCWImageGenerator:
                 poses.extend(female_poses[:3])  # Добавляем первые 3 женские позы
         
         char_id = self.generate_character_id(character)
-        character_seed = self.generate_character_seed(char_id)
         base_prompt = self.build_base_prompt(character)
         
-        print(f"Генерирую персонажа {char_id} (seed: {character_seed})")
+        print(f"Генерирую персонажа {char_id}")
         print(f"  Атрибуты: {character.gender}, возраст {character.age_group}, {character.ethnicity}")
+        print(f"  Seed: уникальный для каждой позы и варианта")
         
         generated_files = {}
         
@@ -460,12 +468,16 @@ class SCWImageGenerator:
             for variant_idx, reveal_level in enumerate(reveal_variants):
                 print(f"    Вариант {variant_idx + 1}/{len(reveal_variants)} (уровень откровенности: {reveal_level})")
                 
+                # Генерируем уникальный seed для этой позы и варианта
+                pose_seed = self.generate_character_seed(char_id, pose, variant_idx)
+                print(f"      Seed: {pose_seed}")
+                
                 # Создаем промпт для позы с учетом уровня откровенности
                 full_prompt = self.build_pose_prompt(base_prompt, pose, reveal_level)
                 
-                # Генерируем изображение с постоянным seed для персонажа
+                # Генерируем изображение с уникальным seed для позы
                 is_headshot = pose == "head"
-                image = self.call_stable_diffusion_api(full_prompt, is_headshot, character_seed)
+                image = self.call_stable_diffusion_api(full_prompt, is_headshot, pose_seed)
                 
                 if image:
                     # Удаляем фон (кроме головы, для неё это менее критично)
