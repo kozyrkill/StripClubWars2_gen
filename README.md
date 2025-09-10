@@ -41,10 +41,20 @@ python scw_image_generator.py --test
 
 ### Generate from config
 
-Create or edit `character_config.json` and run:
+Create or edit configuration files in the `configs/` folder and run:
 
 ```bash
-python scw_image_generator.py --config character_config.json
+# Use the main config with 50+ characters
+python scw_image_generator.py --config configs/character_config.json
+
+# Use the mini config for quick testing  
+python scw_image_generator.py --config configs/character_config.mini.json
+
+# Use the player config for player characters
+python scw_image_generator.py --config configs/character_config.players.json
+
+# Use the full spectrum config covering all character types
+python scw_image_generator.py --config configs/character_config.full_spectrum.json
 ```
 
 ### CLI options
@@ -68,10 +78,10 @@ Available options:
 python scw_image_generator.py --test
 
 # Generate from config with custom mod key
-python scw_image_generator.py --config character_config.json --modkey mymod
+python scw_image_generator.py --config configs/character_config.json --modkey mymod
 
 # Generate only first 3 characters from config
-python scw_image_generator.py --config character_config.json --count 3
+python scw_image_generator.py --config configs/character_config.json --count 3
 
 # Save to a specific directory
 python scw_image_generator.py --test --output-dir ./my_characters

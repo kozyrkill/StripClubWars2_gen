@@ -769,7 +769,7 @@ class SCWImageGenerator:
     def load_test_characters(self, test_type: str = "simple") -> List[CharacterAttributes]:
         """Load test characters from JSON file"""
         try:
-            with open("test_characters.json", "r", encoding="utf-8") as f:
+            with open("configs/test_characters.json", "r", encoding="utf-8") as f:
                 data = json.load(f)
             
             # Select the desired character set
@@ -790,7 +790,7 @@ class SCWImageGenerator:
             return characters
             
         except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
-            print(f"⚠️ test_characters.json load error: {e}")
+            print(f"⚠️ configs/test_characters.json load error: {e}")
             print("Falling back to built-in sample characters")
             return self.create_sample_characters()
 
@@ -836,7 +836,7 @@ def main():
     else:
         print("Use one of the flags:")
         print("  --test                          - generate sample characters")
-        print("  --config character_config.json  - load characters from file")
+        print("  --config configs/character_config.json  - load characters from file")
         return
     
     if characters:
