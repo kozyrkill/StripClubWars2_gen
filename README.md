@@ -27,7 +27,7 @@ Generate Strip Club Wars 2 character image packs using Stable Diffusion WebUI.
    
    In your Strip Club Wars 2 game settings, add `custom` to the `image_modules` list (comma-separated):
    ```
-   image_modules: default,custom
+   image_modules: scw,custom
    ```
    
    This tells the game to load images with the `custom` modkey. Configure this through the game's options menu rather than editing config files directly, as file locations may change between versions.
