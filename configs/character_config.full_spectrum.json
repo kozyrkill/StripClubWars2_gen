@@ -1,11 +1,5 @@
 {
   "character_presets": [
-    
-    // =================================
-    // FEMALE CHARACTERS - YOUNG (age_group 1: 18-24)
-    // =================================
-    
-    // Caucasian Females (age_group 1)
     {"name": "f1w_slim_small", "gender": "f", "age_group": 1, "ethnicity": "w", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "l", "hair_color": "l", "hair_length": "s", "eye_color": "l"},
     {"name": "f1w_slim_medium", "gender": "f", "age_group": 1, "ethnicity": "w", "height": "m", "body_shape": "s", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "f1w_normal_large", "gender": "f", "age_group": 1, "ethnicity": "w", "height": "t", "body_shape": "n", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
@@ -13,165 +7,117 @@
     {"name": "f1w_fit_medium", "gender": "f", "age_group": 1, "ethnicity": "w", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "s", "eye_color": "m"},
     {"name": "f1w_extra_huge", "gender": "f", "age_group": 1, "ethnicity": "w", "height": "m", "body_shape": "c", "hips_size": "l", "breast_penis_size": "x", "skin_tone": "l", "hair_color": "d", "hair_length": "m", "eye_color": "d"},
     
-    // Black Females (age_group 1)
     {"name": "f1b_slim_small", "gender": "f", "age_group": 1, "ethnicity": "b", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "f1b_normal_medium", "gender": "f", "age_group": 1, "ethnicity": "b", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "d", "hair_color": "m", "hair_length": "m", "eye_color": "d"},
     {"name": "f1b_curvy_large", "gender": "f", "age_group": 1, "ethnicity": "b", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "d", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f1b_fit_medium", "gender": "f", "age_group": 1, "ethnicity": "b", "height": "m", "body_shape": "f", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // Hispanic Females (age_group 1)
     {"name": "f1h_slim_small", "gender": "f", "age_group": 1, "ethnicity": "h", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "f1h_normal_medium", "gender": "f", "age_group": 1, "ethnicity": "h", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "f1h_curvy_large", "gender": "f", "age_group": 1, "ethnicity": "h", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f1h_fit_medium", "gender": "f", "age_group": 1, "ethnicity": "h", "height": "m", "body_shape": "f", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "s", "eye_color": "m"},
     
-    // Asian Females (age_group 1)
     {"name": "f1a_slim_small", "gender": "f", "age_group": 1, "ethnicity": "a", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "f1a_normal_medium", "gender": "f", "age_group": 1, "ethnicity": "a", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "f1a_curvy_large", "gender": "f", "age_group": 1, "ethnicity": "a", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "l", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f1a_fit_medium", "gender": "f", "age_group": 1, "ethnicity": "a", "height": "m", "body_shape": "f", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // Middle Eastern Females (age_group 1)
     {"name": "f1r_slim_small", "gender": "f", "age_group": 1, "ethnicity": "r", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "f1r_normal_medium", "gender": "f", "age_group": 1, "ethnicity": "r", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "f1r_curvy_large", "gender": "f", "age_group": 1, "ethnicity": "r", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f1r_fit_medium", "gender": "f", "age_group": 1, "ethnicity": "r", "height": "m", "body_shape": "f", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // =================================
-    // FEMALE CHARACTERS - YOUNG ADULT (age_group 2: 22-31)
-    // =================================
     
-    // Caucasian Females (age_group 2)
     {"name": "f2w_slim_small", "gender": "f", "age_group": 2, "ethnicity": "w", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "l", "hair_color": "l", "hair_length": "s", "eye_color": "l"},
     {"name": "f2w_normal_medium", "gender": "f", "age_group": 2, "ethnicity": "w", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "f2w_curvy_large", "gender": "f", "age_group": 2, "ethnicity": "w", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f2w_fit_huge", "gender": "f", "age_group": 2, "ethnicity": "w", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "h", "skin_tone": "l", "hair_color": "l", "hair_length": "m", "eye_color": "l"},
     {"name": "f2w_curvy_extrahuge", "gender": "f", "age_group": 2, "ethnicity": "w", "height": "m", "body_shape": "c", "hips_size": "l", "breast_penis_size": "x", "skin_tone": "l", "hair_color": "m", "hair_length": "l", "eye_color": "m"},
     
-    // Black Females (age_group 2)
     {"name": "f2b_slim_small", "gender": "f", "age_group": 2, "ethnicity": "b", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "f2b_normal_medium", "gender": "f", "age_group": 2, "ethnicity": "b", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "d", "hair_color": "m", "hair_length": "m", "eye_color": "d"},
     {"name": "f2b_curvy_large", "gender": "f", "age_group": 2, "ethnicity": "b", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "d", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f2b_fit_huge", "gender": "f", "age_group": 2, "ethnicity": "b", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "h", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // Hispanic Females (age_group 2)
     {"name": "f2h_slim_small", "gender": "f", "age_group": 2, "ethnicity": "h", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "f2h_normal_medium", "gender": "f", "age_group": 2, "ethnicity": "h", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "f2h_curvy_large", "gender": "f", "age_group": 2, "ethnicity": "h", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f2h_fit_huge", "gender": "f", "age_group": 2, "ethnicity": "h", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "h", "skin_tone": "m", "hair_color": "m", "hair_length": "s", "eye_color": "m"},
     
-    // Asian Females (age_group 2)
     {"name": "f2a_slim_small", "gender": "f", "age_group": 2, "ethnicity": "a", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "f2a_normal_medium", "gender": "f", "age_group": 2, "ethnicity": "a", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "f2a_curvy_large", "gender": "f", "age_group": 2, "ethnicity": "a", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "l", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f2a_fit_huge", "gender": "f", "age_group": 2, "ethnicity": "a", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "h", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // Middle Eastern Females (age_group 2)
     {"name": "f2r_slim_small", "gender": "f", "age_group": 2, "ethnicity": "r", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "s", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "f2r_normal_medium", "gender": "f", "age_group": 2, "ethnicity": "r", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "f2r_curvy_large", "gender": "f", "age_group": 2, "ethnicity": "r", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f2r_fit_huge", "gender": "f", "age_group": 2, "ethnicity": "r", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "h", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // =================================
-    // FEMALE CHARACTERS - ADULT (age_group 3: 28-42)
-    // =================================
     
-    // Sample across ethnicities for age_group 3
     {"name": "f3w_mature_elegant", "gender": "f", "age_group": 3, "ethnicity": "w", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "l", "hair_color": "l", "hair_length": "m", "eye_color": "l"},
     {"name": "f3b_mature_confident", "gender": "f", "age_group": 3, "ethnicity": "b", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "h", "skin_tone": "d", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     {"name": "f3h_mature_sophisticated", "gender": "f", "age_group": 3, "ethnicity": "h", "height": "m", "body_shape": "f", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "s", "eye_color": "m"},
     {"name": "f3a_mature_graceful", "gender": "f", "age_group": 3, "ethnicity": "a", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "d", "hair_length": "m", "eye_color": "d"},
     {"name": "f3r_mature_strong", "gender": "f", "age_group": 3, "ethnicity": "r", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "l", "eye_color": "d"},
     
-    // =================================
-    // FEMALE CHARACTERS - MIDDLE-AGED (age_group 4: 38-51)
-    // =================================
     
-    // Sample across ethnicities for age_group 4
     {"name": "f4w_experienced", "gender": "f", "age_group": 4, "ethnicity": "w", "height": "m", "body_shape": "n", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "f4b_sophisticated", "gender": "f", "age_group": 4, "ethnicity": "b", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "h", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "f4h_distinguished", "gender": "f", "age_group": 4, "ethnicity": "h", "height": "m", "body_shape": "f", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "d", "hair_length": "l", "eye_color": "m"},
     {"name": "f4a_wise", "gender": "f", "age_group": 4, "ethnicity": "a", "height": "s", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "m", "hair_length": "m", "eye_color": "d"},
     {"name": "f4r_powerful", "gender": "f", "age_group": 4, "ethnicity": "r", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // =================================
-    // FEMALE CHARACTERS - MATURE (age_group 5: 48+)
-    // =================================
     
-    // Sample across ethnicities for age_group 5
     {"name": "f5w_distinguished", "gender": "f", "age_group": 5, "ethnicity": "w", "height": "m", "body_shape": "n", "hips_size": "l", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "l", "hair_length": "s", "eye_color": "l"},
     {"name": "f5b_elegant", "gender": "f", "age_group": 5, "ethnicity": "b", "height": "t", "body_shape": "c", "hips_size": "l", "breast_penis_size": "h", "skin_tone": "d", "hair_color": "m", "hair_length": "m", "eye_color": "d"},
     {"name": "f5h_refined", "gender": "f", "age_group": 5, "ethnicity": "h", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "d", "hair_length": "l", "eye_color": "m"},
     {"name": "f5a_serene", "gender": "f", "age_group": 5, "ethnicity": "a", "height": "s", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "d", "hair_length": "m", "eye_color": "d"},
     {"name": "f5r_noble", "gender": "f", "age_group": 5, "ethnicity": "r", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // =================================
-    // MALE CHARACTERS - YOUNG (age_group 1: 18-24)
-    // =================================
     
-    // Caucasian Males (age_group 1)
     {"name": "m1w_slim_young", "gender": "m", "age_group": 1, "ethnicity": "w", "height": "m", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "l", "hair_length": "s", "eye_color": "l"},
     {"name": "m1w_normal_young", "gender": "m", "age_group": 1, "ethnicity": "w", "height": "t", "body_shape": "n", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "l", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "m1w_fit_young", "gender": "m", "age_group": 1, "ethnicity": "w", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // Black Males (age_group 1)
     {"name": "m1b_slim_young", "gender": "m", "age_group": 1, "ethnicity": "b", "height": "m", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m1b_normal_young", "gender": "m", "age_group": 1, "ethnicity": "b", "height": "t", "body_shape": "n", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "d", "hair_color": "d", "hair_length": "m", "eye_color": "d"},
     {"name": "m1b_fit_young", "gender": "m", "age_group": 1, "ethnicity": "b", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // Hispanic Males (age_group 1)
     {"name": "m1h_slim_young", "gender": "m", "age_group": 1, "ethnicity": "h", "height": "m", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m1h_normal_young", "gender": "m", "age_group": 1, "ethnicity": "h", "height": "t", "body_shape": "n", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "m1h_fit_young", "gender": "m", "age_group": 1, "ethnicity": "h", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // Asian Males (age_group 1)
     {"name": "m1a_slim_young", "gender": "m", "age_group": 1, "ethnicity": "a", "height": "m", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m1a_normal_young", "gender": "m", "age_group": 1, "ethnicity": "a", "height": "t", "body_shape": "n", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "l", "hair_color": "d", "hair_length": "m", "eye_color": "d"},
     {"name": "m1a_fit_young", "gender": "m", "age_group": 1, "ethnicity": "a", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // Middle Eastern Males (age_group 1)
     {"name": "m1r_slim_young", "gender": "m", "age_group": 1, "ethnicity": "r", "height": "m", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m1r_normal_young", "gender": "m", "age_group": 1, "ethnicity": "r", "height": "t", "body_shape": "n", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "m", "eye_color": "d"},
     {"name": "m1r_fit_young", "gender": "m", "age_group": 1, "ethnicity": "r", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // =================================
-    // MALE CHARACTERS - YOUNG ADULT (age_group 2: 22-31)
-    // =================================
     
-    // Sample across ethnicities for age_group 2
     {"name": "m2w_athletic", "gender": "m", "age_group": 2, "ethnicity": "w", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "l", "hair_color": "l", "hair_length": "s", "eye_color": "l"},
     {"name": "m2b_strong", "gender": "m", "age_group": 2, "ethnicity": "b", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m2h_confident", "gender": "m", "age_group": 2, "ethnicity": "h", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "m2a_lean", "gender": "m", "age_group": 2, "ethnicity": "a", "height": "m", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m2r_handsome", "gender": "m", "age_group": 2, "ethnicity": "r", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "m", "eye_color": "d"},
     
-    // =================================
-    // MALE CHARACTERS - ADULT (age_group 3: 28-42)
-    // =================================
     
-    // Sample across ethnicities for age_group 3
     {"name": "m3w_mature", "gender": "m", "age_group": 3, "ethnicity": "w", "height": "t", "body_shape": "n", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "m", "hair_length": "s", "eye_color": "m"},
     {"name": "m3b_powerful", "gender": "m", "age_group": 3, "ethnicity": "b", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m3h_distinguished", "gender": "m", "age_group": 3, "ethnicity": "h", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "d", "hair_length": "m", "eye_color": "m"},
     {"name": "m3a_wise", "gender": "m", "age_group": 3, "ethnicity": "a", "height": "m", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m3r_strong", "gender": "m", "age_group": 3, "ethnicity": "r", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // =================================
-    // MALE CHARACTERS - MIDDLE-AGED (age_group 4: 38-51)  
-    // =================================
     
-    // Sample across ethnicities for age_group 4
     {"name": "m4w_experienced", "gender": "m", "age_group": 4, "ethnicity": "w", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "l", "hair_length": "s", "eye_color": "l"},
     {"name": "m4b_distinguished", "gender": "m", "age_group": 4, "ethnicity": "b", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m4h_sophisticated", "gender": "m", "age_group": 4, "ethnicity": "h", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "m", "hair_length": "m", "eye_color": "m"},
     {"name": "m4a_reserved", "gender": "m", "age_group": 4, "ethnicity": "a", "height": "m", "body_shape": "s", "hips_size": "s", "breast_penis_size": "m", "skin_tone": "l", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m4r_commanding", "gender": "m", "age_group": 4, "ethnicity": "r", "height": "t", "body_shape": "f", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     
-    // =================================
-    // MALE CHARACTERS - MATURE (age_group 5: 48+)
-    // =================================
     
-    // Sample across ethnicities for age_group 5
     {"name": "m5w_distinguished", "gender": "m", "age_group": 5, "ethnicity": "w", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "l", "hair_length": "s", "eye_color": "l"},
     {"name": "m5b_noble", "gender": "m", "age_group": 5, "ethnicity": "b", "height": "t", "body_shape": "n", "hips_size": "m", "breast_penis_size": "l", "skin_tone": "d", "hair_color": "d", "hair_length": "s", "eye_color": "d"},
     {"name": "m5h_refined", "gender": "m", "age_group": 5, "ethnicity": "h", "height": "m", "body_shape": "n", "hips_size": "m", "breast_penis_size": "m", "skin_tone": "m", "hair_color": "d", "hair_length": "s", "eye_color": "m"},
